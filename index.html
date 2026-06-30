@@ -116,4 +116,538 @@
             <div class="dashboard-box" style="margin-top: 30px; border-left: 3px solid var(--accent-spicy);">
                 <div style="font-size:0.9rem; font-weight:800; color:var(--accent-spicy); margin-bottom:8px;">🥷🏽 Geheime Fantasie-Schmiede</div>
                 <p style="font-size:0.75rem; color:var(--text-light); margin-bottom:12px; line-height: 1.4;">
-                    Schleuse heimlich eine eigene Fantasie ein. Dein <strong>"Sofort! 🔥"</strong> wird automatisch geloggt
+                    Schleuse heimlich eine eigene Fantasie ein. Dein <strong>"Sofort! 🔥"</strong> wird automatisch geloggt. Die Karte ploppt nur noch beim Partner auf!
+                </p>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <input type="text" id="input-custom-q-benni" placeholder="Text für Benni (z.B. Du massierst Sarah...)" style="padding:12px; border-radius:12px; border:1px solid #27272a; font-size:0.85rem; background:#09090b; color:white; outline:none;">
+                    <input type="text" id="input-custom-q-sarah" placeholder="Text für Sarah (z.B. Benni massiert dich...)" style="padding:12px; border-radius:12px; border:1px solid #27272a; font-size:0.85rem; background:#09090b; color:white; outline:none;">
+                    
+                    <select id="input-custom-cat" style="padding:12px; border-radius:12px; border:1px solid #27272a; font-size:0.85rem; background:#09090b; color:white; outline:none;">
+                        <option value="soft">Zärtlichkeit & Vorspiel</option>
+                        <option value="dirty">Dirty Talk & Kopfkino</option>
+                        <option value="toys">Toys & Hilfsmittel</option>
+                        <option value="action">Praktiken & Abenteuer</option>
+                        <option value="roleplay">🎭 Rollenspiele & Kostüme</option>
+                        <option value="outdoor">🌲 Outdoor & Nervenkitzel</option>
+                        <option value="domsub">⛓️ Dominanz & Hingabe</option>
+                        <option value="voyeur">👀 Voyeurismus & Zeigen</option>
+                        <option value="taboo">🚫 Geheime Tabus & Kinks</option>
+                        <option value="slow">👅 Sinnliches Slow-Down</option>
+                    </select>
+                    
+                    <button onclick="injectCustomQuestion()" class="btn-block" style="background:#27272a; border:1px solid var(--accent-spicy); color:var(--accent-spicy); margin-top: 4px;">Heimlich einschleusen 🎲</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-matches" class="view-section">
+            <p style="font-size:0.75rem; color:var(--text-light); margin-bottom:10px; padding:0 4px; line-height:1.4;">
+                🔒 **Absolute Diskretion:** Hier ploppen nur Dinge auf, wenn *beide* Interesse signalisiert haben. Ein „No-Go!“ bleibt für den anderen für immer unsichtbar.
+            </p>
+            
+            <div class="result-title">🔥 Absoluter Konsens (Sofort umsetzen)</div>
+            <ul class="item-list match-hot" id="list-matches-hot"></ul>
+
+            <div class="result-title">💬 Reizvolles Kopfkino (Redebedarf)</div>
+            <ul class="item-list match-talk" id="list-matches-talk"></ul>
+        </section>
+
+        <section id="section-live" class="view-section">
+            <div class="dashboard-box">
+                <div style="font-size:0.8rem; font-weight:800; color:var(--text-light); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px;">Intensitäts-Level filtern:</div>
+                <div class="level-grid">
+                    <button class="level-btn active" data-lvl="1" onclick="toggleLevel(1)">Lvl 1<br><span style="font-size:0.6rem;font-weight:400;">Spark</span></button>
+                    <button class="level-btn active" data-lvl="2" onclick="toggleLevel(2)">Lvl 2<br><span style="font-size:0.6rem;font-weight:400;">Tease</span></button>
+                    <button class="level-btn active" data-lvl="3" onclick="toggleLevel(3)">Lvl 3<br><span style="font-size:0.6rem;font-weight:400;">Skin & Strip</span></button>
+                    <button class="level-btn" data-lvl="4" onclick="toggleLevel(4)">Lvl 4<br><span style="font-size:0.6rem;font-weight:400;">Touch</span></button>
+                    <button class="level-btn" data-lvl="5" onclick="toggleLevel(5)">Lvl 5<br><span style="font-size:0.6rem;font-weight:400;">Action</span></button>
+                    <button class="level-btn" data-lvl="6" onclick="toggleLevel(6)">Lvl 6<br><span style="font-size:0.6rem;font-weight:400;">Extra</span></button>
+                    <button class="level-btn" data-lvl="7" onclick="toggleLevel(7)">Lvl 7<br><span style="font-size:0.6rem;font-weight:400;">Hardcore</span></button>
+                </div>
+            </div>
+
+            <div class="dashboard-box" style="text-align:center; padding:24px 16px; min-height:160px; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+                <div class="card-cat" id="live-level-badge" style="display:none;">Level</div>
+                <div id="live-task-text" style="font-size:1.15rem; font-weight:700; line-height:1.4;">Wer ist an der Reihe? Level wählen und Button drücken.</div>
+                <div id="timer-display">00:00</div>
+                
+                <button id="btn-skip-task" style="display:none; background:#27272a; color:var(--text-light); border:none; padding:6px 14px; border-radius:20px; font-size:0.75rem; font-weight:700; margin-top:14px; cursor:pointer;" onclick="resetLiveField()">⏭️ Fertig / Skippen</button>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <button class="btn-block" style="background:#1e3a8a; font-weight:800; margin-top:0;" onclick="drawLiveTask('benni')">♂️ Bennis Aufgabe</button>
+                <button class="btn-block" style="background:#581c87; font-weight:800; margin-top:0;" onclick="drawLiveTask('sarah')">♀️ Sarahs Aufgabe</button>
+            </div>
+            
+            <button class="btn-block btn-primary" style="background:var(--accent-spicy);" onclick="drawLiveTask('verlierer')">🏆 Strafe für Verlierer (Lvl 5-7)</button>
+        </section>
+
+        <section id="section-sync" class="view-section">
+            <div class="dashboard-box" style="text-align:center;">
+                <h3 style="font-weight:800; margin-bottom:6px;">📱 Identität wählen</h3>
+                <p style="font-size:0.75rem; color:var(--text-light); line-height:1.4; margin-bottom:14px;">Wem gehört dieses Gerät? Die Fantasien passen sich an.</p>
+                
+                <div style="display:flex; background:#27272a; border-radius:12px; padding:4px; margin-bottom:16px;">
+                    <button id="role-benni-btn" style="flex:1; background:none; border:none; padding:10px; font-weight:800; border-radius:8px; color:white; cursor:pointer;" onclick="setPartnerRole('benni')">BENNI (♂️)</button>
+                    <button id="role-sarah-btn" style="flex:1; background:none; border:none; padding:10px; font-weight:800; border-radius:8px; color:white; cursor:pointer;" onclick="setPartnerRole('sarah')">SARAH (♀️)</button>
+                </div>
+            </div>
+
+            <div class="sync-panel-card">
+                <div style="font-size:0.9rem; font-weight:800; color: var(--success-color); margin-bottom: 8px;">☁️ Cloud Sync Aktiv</div>
+                <p style="font-size:0.8rem; color:var(--text-light); line-height: 1.4;">
+                    Eure Geräte sind live über Firebase verbunden. Swipes und Matches werden sofort in Millisekunden synchronisiert.
+                </p>
+            </div>
+        </section>
+
+    </div>
+
+    <nav class="mode-tabs">
+        <button class="tab-btn active" onclick="switchTab('swipe', this)"><span class="icon">🃏</span>Stapel</button>
+        <button class="tab-btn" onclick="switchTab('matches', this)"><span class="icon">🔥</span>Matches</button>
+        <button class="tab-btn" onclick="switchTab('live', this)"><span class="icon">⏱️</span>Live Spiel</button>
+        <button class="tab-btn" onclick="switchTab('sync', this)"><span class="icon">⚙️</span>Settings</button>
+    </nav>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const nameBenni = "Benni";
+        const nameSarah = "Sarah";
+
+        // ==========================================
+        // KATEGORIEN (Aktualisiert)
+        // ==========================================
+        const categories = {
+            soft: "Zärtlichkeit & Vorspiel",
+            dirty: "Dirty Talk & Kopfkino",
+            toys: "Toys & Hilfsmittel",
+            action: "Praktiken & Abenteuer",
+            roleplay: "🎭 Rollenspiele & Kostüme",
+            outdoor: "🌲 Outdoor & Nervenkitzel",
+            domsub: "⛓️ Dominanz & Hingabe",
+            voyeur: "👀 Voyeurismus & Zeigen",
+            taboo: "🚫 Geheime Tabus & Kinks",
+            slow: "👅 Sinnliches Slow-Down"
+        };
+
+        // ==========================================
+        // DEIN FRAGEN-POOL HIER EINFÜGEN
+        // ==========================================
+        const swipePool = [
+            {
+                id: "sp_01", cat: "soft",
+                textBenni: `Du verbindest ${nameSarah} die Augen und verwöhnst sie vollkommen blind an ihren empfindlichsten Stellen.`,
+                textSarah: `${nameBenni} verbindet dir die Augen und verwöhnt dich vollkommen blind an deinen empfindlichsten Stellen.`
+            },
+            {
+                id: "sp_02", cat: "dirty",
+                textBenni: `Während eines völlig normalen Telefonats unter dem Tag fängst du plötzlich an, schmutzige Details ins Ohr zu flüstern.`,
+                textSarah: `Während eines völlig normalen Telefonats unter dem Tag fängt ${nameBenni} plötzlich an, dir schmutzige Details ins Ohr zu flüstern.`
+            }
+            // ---> BENNI, FÜGE HIER DEINE RESTLICHEN FANTASIEN EIN! <---
+        ];
+
+        const liveTasks = [
+            { lvl: 1, timer: 60, who: "both", text: `${nameBenni} und ${nameSarah} setzen sich direkt gegenüber. Schaut euch für 60 Sekunden intensiv in die Augen, ohne zu sprechen oder wegzusehen. Spürt einfach nur die Anziehung.` },
+            { lvl: 1, timer: 0, who: "benni", text: `${nameBenni} flüstert ${nameSarah} ein intimes Geständnis ins Ohr – beschreibe ihr ganz genau, welches Detail an ihrem Körper dich heute am meisten verrückt macht.` }
+            // ---> BENNI, FÜGE HIER DEINE RESTLICHEN AUFGABEN EIN! <---
+        ];
+
+        // ==========================================
+        // FIREBASE & APP STATE
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCYXPvlGx2D2SHoFVJDiRcuO1P8U1Iuyvk",
+            authDomain: "puls-4e1ef.firebaseapp.com",
+            databaseURL: "https://puls-4e1ef-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "puls-4e1ef",
+            storageBucket: "puls-4e1ef.firebasestorage.app",
+            messagingSenderId: "482579506384",
+            appId: "1:482579506384:web:4d9e9c2bb2f0de279d2ad5"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        let currentPartner = 'benni';
+        let activeLevels = [1, 2, 3]; 
+        let timerInterval = null;
+        let currentSwipeId = null; 
+        
+        let appState = { 
+            answers: {},
+            shuffledOrder: [],
+            customQuestions: []
+        };
+
+        function initApp() {
+            const savedRole = localStorage.getItem('spicy_partner');
+            if (savedRole === 'sarah') { currentPartner = 'sarah'; } else { currentPartner = 'benni'; }
+
+            applyRoleStyling();
+
+            // Firebase Listener auf 'puls_live_data' (Offene Regeln nutzen!)
+            database.ref('puls_live_data').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    appState = { ...appState, ...data };
+                    if (!appState.answers) appState.answers = {};
+                } else {
+                    saveState();
+                }
+
+                updateProgressBar();
+                renderMatchesLists();
+                
+                const cMain = document.getElementById('card-text-display');
+                if (cMain && (cMain.innerText.includes("Verbindung") || cMain.innerText.includes("Lade"))) {
+                    getNewSwipeCard();
+                }
+            });
+        }
+
+        function saveState() {
+            database.ref('puls_live_data').set(appState).catch(e => console.error("Firebase Error:", e));
+        }
+
+        // Auto-Heilung & Pool Generierung inkl. Custom Questions
+        function getCombinedQuestionPool() {
+            let customQ = Array.isArray(appState.customQuestions) ? appState.customQuestions : Object.values(appState.customQuestions || {});
+            let pool = [...swipePool, ...customQ];
+
+            pool.forEach((q, index) => {
+                if (!q.id) q.id = "puls_auto_id_" + index;
+                if (!q.cat) q.cat = "soft"; 
+            });
+
+            if (pool.length === 0) return [];
+
+            let sOrder = Array.isArray(appState.shuffledOrder) ? appState.shuffledOrder : Object.values(appState.shuffledOrder || {});
+
+            if (sOrder.length === 0) {
+                let ids = pool.map(q => q.id).filter(id => id !== undefined && id !== null);
+                for (let i = ids.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [ids[i], ids[j]] = [ids[j], ids[i]];
+                }
+                appState.shuffledOrder = ids;
+                sOrder = ids;
+                database.ref('puls_live_data/shuffledOrder').set(ids).catch(e=>console.log(e));
+            }
+
+            const orderMap = new Map();
+            sOrder.forEach((id, index) => orderMap.set(id, index));
+            
+            pool.sort((a, b) => {
+                let indexA = orderMap.has(a.id) ? orderMap.get(a.id) : 99999;
+                let indexB = orderMap.has(b.id) ? orderMap.get(b.id) : 99999;
+                return indexA - indexB;
+            });
+
+            return pool;
+        }
+
+        function switchTab(viewId, btn) {
+            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(`section-${viewId}`).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            if(btn) btn.classList.add('active');
+            if(viewId === 'matches') renderMatchesLists();
+        }
+
+        function setPartnerRole(role) {
+            currentPartner = role;
+            localStorage.setItem('spicy_partner', role);
+            applyRoleStyling();
+            getNewSwipeCard();
+            updateProgressBar();
+            renderMatchesLists();
+            showToast(`Rolle gewechselt zu: ${role.toUpperCase()}`);
+        }
+
+        function applyRoleStyling() {
+            const badge = document.getElementById('active-role-badge');
+            const benniBtn = document.getElementById('role-benni-btn');
+            const sarahBtn = document.getElementById('role-sarah-btn');
+            
+            benniBtn.style.background = 'none';
+            sarahBtn.style.background = 'none';
+
+            if(currentPartner === 'benni') {
+                badge.innerText = `${nameBenni} (♂️)`;
+                badge.className = "role-badge role-active-benni";
+                benniBtn.style.background = '#1e3a8a';
+                document.documentElement.style.setProperty('--accent-spicy', '#e11d48');
+            } else {
+                badge.innerText = `${nameSarah} (♀️)`;
+                badge.className = "role-badge role-active-sarah";
+                sarahBtn.style.background = '#581c87';
+                document.documentElement.style.setProperty('--accent-spicy', '#a855f7');
+            }
+        }
+
+        function updateProgressBar() {
+            const pool = getCombinedQuestionPool();
+            if(pool.length === 0) return;
+            
+            let answeredCount = Object.keys(appState.answers || {}).filter(qId => appState.answers[qId] && appState.answers[qId][currentPartner]).length;
+            let percent = Math.min(Math.round((answeredCount / pool.length) * 100), 100);
+            
+            document.getElementById('swipe-progress-bar').style.width = `${percent}%`;
+            document.getElementById('swipe-stats-text').innerText = `${answeredCount} / ${pool.length} Fantasien bewertet (${percent}%)`;
+        }
+
+        function injectCustomQuestion() {
+            let tB = document.getElementById('input-custom-q-benni').value.trim();
+            let tS = document.getElementById('input-custom-q-sarah').value.trim();
+            let cat = document.getElementById('input-custom-cat').value;
+            
+            if(!tB || !tS) { showToast("Bitte beide Textfelder ausfüllen!"); return; }
+            
+            let randId = "custom_puls_" + Math.random().toString(36).substr(2, 9);
+            let newObj = { id: randId, cat: cat, textBenni: tB, textSarah: tS };
+            
+            let cQ = Array.isArray(appState.customQuestions) ? appState.customQuestions : Object.values(appState.customQuestions || {});
+            cQ.push(newObj);
+            appState.customQuestions = cQ;
+            
+            // AUTO-VOTE: Wir loggen sofort ein "JA" für den Ersteller ein!
+            if (!appState.answers) appState.answers = {};
+            appState.answers[randId] = { benni: "", sarah: "" };
+            appState.answers[randId][currentPartner] = "JA"; 
+            
+            saveState(); 
+            getNewSwipeCard();
+            updateProgressBar();
+            
+            document.getElementById('input-custom-q-benni').value = '';
+            document.getElementById('input-custom-q-sarah').value = '';
+            
+            showToast("Geheim eingeschleust! Dein 'Sofort! 🔥' wurde geloggt. 🥷🏽");
+        }
+
+        function getNewSwipeCard() {
+            const cMain = document.getElementById('card-text-display'); 
+            const card = document.getElementById('active-card');
+            
+            const showCard = () => {
+                if(card) {
+                    card.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
+                    card.style.transform = 'none'; 
+                    card.style.opacity = '1';
+                }
+            };
+
+            try {
+                const pool = getCombinedQuestionPool();
+                
+                if (!pool || pool.length === 0) {
+                    if(cMain) cMain.innerText = "Fehler: Pool ist leer. Fragen eingefügt?";
+                    showCard();
+                    return;
+                }
+                
+                const nextQ = pool.find(q => {
+                    if (!appState.answers || !appState.answers[q.id] || typeof appState.answers[q.id] !== 'object') return true;
+                    return !appState.answers[q.id][currentPartner];
+                });
+
+                if (!nextQ) {
+                    document.getElementById('card-cat-display').innerText = "FINALE";
+                    if(cMain) cMain.innerText = "Du hast alle aktuellen Fantasien bewertet! Gleiche dich im Matches-Reiter ab. 😏";
+                    showCard(); 
+                    return;
+                }
+
+                document.getElementById('card-cat-display').innerText = categories[nextQ.cat] || "Spicy";
+                if(cMain) cMain.innerText = currentPartner === 'benni' ? nextQ.textBenni : nextQ.textSarah;
+                
+                currentSwipeId = nextQ.id;
+                showCard(); 
+                
+            } catch (error) { 
+                if(cMain) cMain.innerText = "Code-Fehler beim Laden: " + error.message;
+                showCard();
+            }
+        }
+
+        function handleSwipe(vote) {
+            try {
+                const qId = currentSwipeId; 
+                if(!qId) return;
+                
+                const card = document.getElementById('active-card'); 
+                if(card) {
+                    card.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s';
+                    if (vote === 'JA') card.style.transform = 'translateY(-100px) translateX(300px) rotate(20deg)';
+                    else if (vote === 'NEIN') card.style.transform = 'translateY(-100px) translateX(-300px) rotate(-20deg)';
+                    else card.style.transform = 'translateY(-300px) scale(0.8)';
+                    card.style.opacity = '0';
+                }
+                
+                setTimeout(() => {
+                    try {
+                        if (!appState.answers) appState.answers = {};
+                        if (!appState.answers[qId] || typeof appState.answers[qId] !== 'object') {
+                            appState.answers[qId] = { benni: "", sarah: "" };
+                        }
+                        
+                        appState.answers[qId][currentPartner] = vote; 
+                        saveState(); 
+                        
+                        getNewSwipeCard(); 
+                        updateProgressBar();
+                    } catch(innerErr) {
+                        console.error("Crash beim Speichern der Karte:", innerErr);
+                    }
+                }, 300);
+
+            } catch (err) {
+                console.error("Fehler beim Swipe", err);
+            }
+        }
+
+        // Matches Logik mit Sarah-Sonderregel
+        function renderMatchesLists() {
+            const hotList = document.getElementById('list-matches-hot');
+            const talkList = document.getElementById('list-matches-talk');
+            
+            hotList.innerHTML = '';
+            talkList.innerHTML = '';
+
+            let hotCount = 0;
+            let talkCount = 0;
+            const pool = getCombinedQuestionPool();
+
+            pool.forEach(q => {
+                const ans = appState.answers[q.id];
+                if(ans && ans.benni && ans.sarah) {
+                    let b = ans.benni;
+                    let s = ans.sarah;
+
+                    let cleanText = (currentPartner === 'benni' ? q.textBenni : q.textSarah).replace("Fantasie: ", "");
+
+                    if(b === 'JA' && s === 'JA') {
+                        const li = document.createElement('li');
+                        li.innerText = `🔥 ${cleanText}`;
+                        hotList.appendChild(li);
+                        hotCount++;
+                    } 
+                    // SARAH-REGEL: Sobald Sarah "VIELLEICHT" drückt, taucht es immer auf!
+                    else if (s === 'VIELLEICHT') {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<strong>[Sarah will reden]</strong><br>💬 ${cleanText}`;
+                        talkList.appendChild(li);
+                        talkCount++;
+                    }
+                    // Wenn Sarah JA sagt, Benni aber VIELLEICHT will
+                    else if (b === 'VIELLEICHT' && s === 'JA') {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<strong>[Benni will reden]</strong><br>💬 ${cleanText}`;
+                        talkList.appendChild(li);
+                        talkCount++;
+                    }
+                }
+            });
+
+            if(hotCount === 0) hotList.innerHTML = `<li class="empty-state">Noch keine absoluten Matches gefunden. Votiert weiter!</li>`;
+            if(talkCount === 0) talkList.innerHTML = `<li class="empty-state">Noch kein reizvolles Kopfkino aufgedeckt.</li>`;
+        }
+
+        function toggleLevel(lvl) {
+            const btn = document.querySelector(`[data-lvl="${lvl}"]`);
+            if(activeLevels.includes(lvl)) {
+                if(activeLevels.length === 1) return;
+                activeLevels = activeLevels.filter(l => l !== lvl);
+                btn.classList.remove('active');
+            } else {
+                activeLevels.push(lvl);
+                btn.classList.add('active');
+            }
+        }
+
+        // Live Spiel - Strafe greift auf Level 5-7
+        function drawLiveTask(target) {
+            clearInterval(timerInterval);
+            document.getElementById('timer-display').style.display = 'none';
+            document.getElementById('btn-skip-task').style.display = 'block';
+
+            let pool = [];
+            let prefix = "";
+
+            if(target === 'verlierer') {
+                pool = liveTasks.filter(t => t.lvl >= 5 && t.lvl <= 7);
+                prefix = "⚠️ **STRAFAUFGABE FÜR DEN VERLIERER:**<br>";
+            } else {
+                pool = liveTasks.filter(t => activeLevels.includes(t.lvl) && (t.who === target || t.who === 'both'));
+            }
+
+            if(pool.length === 0) {
+                pool = liveTasks.filter(t => activeLevels.includes(t.lvl));
+            }
+
+            if(pool.length === 0) {
+                document.getElementById('live-task-text').innerText = "Keine Aufgaben für diese Auswahl verfügbar.";
+                return;
+            }
+
+            const randomTask = pool[Math.floor(Math.random() * pool.length)];
+            
+            const badge = document.getElementById('live-level-badge');
+            badge.style.display = 'inline-block';
+            badge.innerText = `LEVEL ${randomTask.lvl}`;
+            
+            document.getElementById('live-task-text').innerHTML = prefix + randomTask.text;
+
+            if(randomTask.timer > 0) {
+                startLiveTimer(randomTask.timer);
+            }
+        }
+
+        function startLiveTimer(seconds) {
+            const display = document.getElementById('timer-display');
+            display.style.display = 'block';
+            let timeLeft = seconds;
+            
+            function updateTimerString() {
+                let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+                let s = (timeLeft % 60).toString().padStart(2, '0');
+                display.innerText = `${m}:${s}`;
+            }
+
+            updateTimerString();
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerString();
+                if(timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    display.innerText = "💥 ZEIT ABGELAUFEN!";
+                    if(window.navigator.vibrate) window.navigator.vibrate([200, 100, 200]);
+                }
+            }, 1000);
+        }
+
+        function resetLiveField() {
+            clearInterval(timerInterval);
+            document.getElementById('timer-display').style.display = 'none';
+            document.getElementById('live-level-badge').style.display = 'none';
+            document.getElementById('btn-skip-task').style.display = 'none';
+            document.getElementById('live-task-text').innerText = "Runde beendet. Wer drückt als Nächstes?";
+        }
+
+        function showToast(text) {
+            const t = document.getElementById('toast');
+            t.innerText = text;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        window.onload = () => {
+            initApp();
+        };
+    </script>
+</body>
+</html>
