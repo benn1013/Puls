@@ -8819,41 +8819,76 @@
         }
 
         // Auto-Heilung & Pool Generierung inkl. Custom Questions
-        function getCombinedQuestionPool() {
-            let customQ = Array.isArray(appState.customQuestions) ? appState.customQuestions : Object.values(appState.customQuestions || {});
-            let pool = [...swipePool, ...customQ];
+function getCombinedQuestionPool() {
 
-            pool.forEach((q, index) => {
-                if (!q.id) q.id = "puls_auto_id_" + index;
-                if (!q.cat) q.cat = "soft"; 
-            });
+    let customQ = Array.isArray(appState.customQuestions)
+        ? appState.customQuestions
+        : Object.values(appState.customQuestions || {});
 
-            if (pool.length === 0) return [];
+    const pool = [...swipePool, ...customQ];
 
-            let sOrder = Array.isArray(appState.shuffledOrder) ? appState.shuffledOrder : Object.values(appState.shuffledOrder || {});
+    // IDs vergeben falls nötig
+    pool.forEach((q, index) => {
+        if (!q.id) q.id = "auto_" + index;
+    });
 
-            if (sOrder.length === 0) {
-                let ids = pool.map(q => q.id).filter(id => id !== undefined && id !== null);
-                for (let i = ids.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [ids[i], ids[j]] = [ids[j], ids[i]];
-                }
-                appState.shuffledOrder = ids;
-                sOrder = ids;
-                database.ref('puls_live_data/shuffledOrder').set(ids).catch(e=>console.log(e));
-            }
+    // ------------------------------------
+    // Reihenfolge existiert noch nicht?
+    // Dann einmal mischen
+    // ------------------------------------
 
-            const orderMap = new Map();
-            sOrder.forEach((id, index) => orderMap.set(id, index));
-            
-            pool.sort((a, b) => {
-                let indexA = orderMap.has(a.id) ? orderMap.get(a.id) : 99999;
-                let indexB = orderMap.has(b.id) ? orderMap.get(b.id) : 99999;
-                return indexA - indexB;
-            });
+    if (!appState.shuffledOrder || appState.shuffledOrder.length === 0) {
 
-            return pool;
+        let ids = pool.map(q => q.id);
+
+        // Fisher-Yates Shuffle
+        for (let i = ids.length - 1; i > 0; i--) {
+
+            const j = Math.floor(Math.random() * (i + 1));
+
+            [ids[i], ids[j]] = [ids[j], ids[i]];
+
         }
+
+        appState.shuffledOrder = ids;
+
+        saveState();
+    }
+const existingIds = new Set(appState.shuffledOrder || []);
+
+let changed = false;
+
+pool.forEach(q => {
+
+    if (!existingIds.has(q.id)) {
+
+        const pos = Math.floor(Math.random() * (appState.shuffledOrder.length + 1));
+
+        appState.shuffledOrder.splice(pos, 0, q.id);
+
+        existingIds.add(q.id);
+
+        changed = true;
+    }
+
+});
+
+if (changed) {
+    saveState();
+}
+
+    // Reihenfolge anwenden
+
+    const map = {};
+
+    appState.shuffledOrder.forEach((id, index) => {
+        map[id] = index;
+    });
+
+    pool.sort((a, b) => map[a.id] - map[b.id]);
+
+    return pool;
+}
 
         function switchTab(viewId, btn) {
             document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
@@ -8916,8 +8951,18 @@
             let newObj = { id: randId, cat: cat, textBenni: tB, textSarah: tS };
             
             let cQ = Array.isArray(appState.customQuestions) ? appState.customQuestions : Object.values(appState.customQuestions || {});
-            cQ.push(newObj);
-            appState.customQuestions = cQ;
+cQ.push(newObj);
+
+// shuffledOrder anlegen falls sie noch nicht existiert
+if (!appState.shuffledOrder) {
+    appState.shuffledOrder = [];
+}
+
+// Neue Karte zufällig in den Stapel einfügen
+const pos = Math.floor(Math.random() * (appState.shuffledOrder.length + 1));
+appState.shuffledOrder.splice(pos, 0, randId);
+
+appState.customQuestions = cQ;
             
             // AUTO-VOTE: Wir loggen sofort ein "JA" für den Ersteller ein!
             if (!appState.answers) appState.answers = {};
