@@ -302,6 +302,26 @@
             </div>
             
             <button class="btn-block btn-primary" style="background:var(--accent-spicy);" onclick="drawLiveTask('verlierer')">🏆 Strafe für Verlierer (Lvl 5-7)</button>
+			<button class="btn-block btn-primary" style="background:var(--accent-spicy);" onclick="drawLiveTask('verlierer')">🏆 Strafe für Verlierer (Lvl 5-7)</button>
+            
+            <div class="dashboard-box" style="margin-top: 24px; border-top: 1px solid #27272a; background: #09090b;">
+                <div style="font-size:0.8rem; font-weight:800; color:var(--text-light); margin-bottom:12px; text-transform:uppercase;">⏳ Manueller Timer & Runden</div>
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                    <div style="flex: 1;">
+                        <label style="font-size: 0.7rem; color: #52525b; font-weight: 700;">MINUTEN</label>
+                        <input type="number" id="manual-timer-mins" value="1" min="1" max="60" style="width: 100%; padding: 12px; border-radius: 12px; background: var(--card-bg); border: 1px solid #27272a; color: white; text-align: center; font-weight: 800; font-size: 1rem; outline: none;">
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="font-size: 0.7rem; color: #52525b; font-weight: 700;">RUNDEN</label>
+                        <input type="number" id="manual-timer-rounds" value="3" min="1" max="20" style="width: 100%; padding: 12px; border-radius: 12px; background: var(--card-bg); border: 1px solid #27272a; color: white; text-align: center; font-weight: 800; font-size: 1rem; outline: none;">
+                    </div>
+                </div>
+                
+                <button id="btn-manual-start" class="btn-block" style="background:#27272a; border: 1px solid #52525b; color: white; font-weight: 800;" onclick="startManualRound()">🚀 1. Runde Starten</button>
+                <div id="round-display" style="text-align: center; font-size: 0.85rem; font-weight: 800; color: var(--accent-spicy); margin-top: 12px; display: none;">Runde 1 von 3</div>
+            </div>
+        </section>
         </section>
 
 <section id="section-sync" class="view-section">
@@ -1078,7 +1098,35 @@
             }, 120); // Geschwindigkeit des Wechsels (120 Millisekunden)
         }
 
-        function startLiveTimer(seconds) {
+        // ==========================================
+        // TIMER, RUNDEN & WAKE LOCK LOGIK
+        // ==========================================
+        let wakeLock = null;
+        let currentRound = 0;
+        let totalRounds = 0;
+
+        // Schaltet die Display-Sperre ein (Bildschirm bleibt an)
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                }
+            } catch (err) {
+                console.log('Wake Lock nicht unterstützt oder blockiert:', err);
+            }
+        }
+
+        // Schaltet die Display-Sperre wieder aus
+        function releaseWakeLock() {
+            if (wakeLock !== null) {
+                wakeLock.release().then(() => { wakeLock = null; });
+            }
+        }
+
+        function startLiveTimer(seconds, isManualRound = false) {
+            clearInterval(timerInterval);
+            requestWakeLock(); // Handy wachhalten!
+
             const display = document.getElementById('timer-display');
             display.style.display = 'block';
             let timeLeft = seconds;
@@ -1096,18 +1144,72 @@
                 updateTimerString();
                 if(timeLeft <= 0) {
                     clearInterval(timerInterval);
-                    display.innerText = "💥 ZEIT ABGELAUFEN!";
-                    if(window.navigator.vibrate) window.navigator.vibrate([200, 100, 200]);
+                    releaseWakeLock(); // Handy darf wieder schlafen
+                    if(window.navigator.vibrate) window.navigator.vibrate([200, 100, 200, 100, 200]);
+
+                    // Check, ob wir im Runden-Modus sind
+                    if(isManualRound) {
+                        if (currentRound < totalRounds) {
+                            display.innerText = "🏁 RUNDE BEENDET!";
+                            document.getElementById('btn-manual-start').innerText = `Runde ${currentRound + 1} Starten 🚀`;
+                            document.getElementById('btn-manual-start').style.display = 'block';
+                        } else {
+                            display.innerText = "🏆 ALLE RUNDEN GESCHAFFT!";
+                            document.getElementById('round-display').innerText = "Abgeschlossen!";
+                        }
+                    } else {
+                        // Standard-Timer für normale Karten
+                        display.innerText = "💥 ZEIT ABGELAUFEN!";
+                    }
                 }
             }, 1000);
         }
 
+        // Steuert den händischen Runden-Button
+        function startManualRound() {
+            const minInput = document.getElementById('manual-timer-mins').value;
+            const roundsInput = document.getElementById('manual-timer-rounds').value;
+            const roundDisplay = document.getElementById('round-display');
+            const startBtn = document.getElementById('btn-manual-start');
+
+            // Initialisierung beim allerersten Klick
+            if (currentRound === 0 || currentRound >= totalRounds) {
+                totalRounds = parseInt(roundsInput) || 1;
+                currentRound = 1;
+                document.getElementById('live-task-text').innerText = "⏳ Manueller Timer aktiv...";
+                document.getElementById('btn-skip-task').style.display = 'inline-block';
+                document.getElementById('live-level-badge').style.display = 'none';
+            } else {
+                currentRound++; // Zählt die Runde hoch
+            }
+
+            roundDisplay.style.display = 'block';
+            roundDisplay.innerText = `Aktuelle Runde: ${currentRound} von ${totalRounds}`;
+            startBtn.style.display = 'none'; // Button verschwindet, während die Zeit abläuft
+
+            const seconds = (parseFloat(minInput) || 1) * 60;
+            startLiveTimer(seconds, true); // True = ist ein manueller Timer
+        }
+
+        // Bricht alles ab und setzt es zurück (Skippen)
         function resetLiveField() {
             clearInterval(timerInterval);
+            releaseWakeLock(); // Display-Sperre aufheben!
+            currentRound = 0;
+            totalRounds = 0;
+            
             document.getElementById('timer-display').style.display = 'none';
             document.getElementById('live-level-badge').style.display = 'none';
             document.getElementById('btn-skip-task').style.display = 'none';
             document.getElementById('live-task-text').innerText = "Runde beendet. Wer drückt als Nächstes?";
+            document.getElementById('round-display').style.display = 'none';
+            
+            // Reset des manuellen Buttons
+            const btnManual = document.getElementById('btn-manual-start');
+            if(btnManual) {
+                btnManual.innerText = "🚀 1. Runde Starten";
+                btnManual.style.display = 'block';
+            }
         }
 
         function showToast(text) {
