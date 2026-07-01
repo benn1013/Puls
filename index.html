@@ -252,6 +252,10 @@
                 🔒 **Absolute Diskretion:** Hier ploppen nur Dinge auf, wenn *beide* Interesse signalisiert haben. Ein „No-Go!“ bleibt für den anderen für immer unsichtbar.
             </p>
             
+            <!-- NEU: Favoriten Bereich -->
+            <div class="result-title" style="color: var(--accent-spicy); font-size: 0.95rem;">⭐ Meine Favoriten</div>
+            <ul class="item-list" id="list-matches-fav" style="margin-bottom: 24px;"></ul>
+
             <div class="result-title">🔥 Absoluter Konsens (Sofort umsetzen)</div>
             <ul class="item-list match-hot" id="list-matches-hot"></ul>
 
@@ -466,12 +470,12 @@
         let timerInterval = null;
         let currentSwipeId = null; 
         
-        let appState = { 
+       let appState = { 
             answers: {},
             shuffledOrder: [],
-            customQuestions: []
+            customQuestions: [],
+            favorites: { benni: {}, sarah: {} }
         };
-
         // ==========================================
         // INITIALISIERUNG & FIREBASE LISTENER
         // ==========================================
@@ -815,7 +819,7 @@
                 }
             }
         }
-        // Die verbesserte Handle-Swipe Funktion (animiert flüssig weiter)
+       // Die verbesserte Handle-Swipe Funktion (animiert flüssig weiter)
         function handleSwipe(vote, currentX = 0, currentY = 0) {
             try {
                 const qId = currentSwipeId; 
@@ -841,8 +845,10 @@
                     card.style.opacity = '0';
                     
                     // Die untere Karte schnappt zu 100% nach vorne
-                    nextCard.style.transform = 'scale(1) translateY(0px)';
-                    nextCard.style.opacity = '1';
+                    if(nextCard) {
+                        nextCard.style.transform = 'scale(1) translateY(0px)';
+                        nextCard.style.opacity = '1';
+                    }
                 }
                 
                 // Nach Ablauf der Flug-Animation -> Firebase & Neue Karte laden
@@ -869,51 +875,109 @@
                 console.error("Fehler beim Swipe", err);
             }
         }
-        // Matches Logik mit Sarah-Sonderregel
+
+        // ==========================================
+        // FAVORITEN LOGIK
+        // ==========================================
+        function toggleFavorite(qId) {
+            // Sicherstellen, dass die Struktur existiert
+            if (!appState.favorites) appState.favorites = { benni: {}, sarah: {} };
+            if (!appState.favorites[currentPartner]) appState.favorites[currentPartner] = {};
+
+            const isFav = appState.favorites[currentPartner][qId];
+            
+            // Lokales Update
+            if (isFav) {
+                appState.favorites[currentPartner][qId] = null;
+            } else {
+                appState.favorites[currentPartner][qId] = true;
+            }
+
+            // Firebase Update (mit null wird der Eintrag aus der Datenbank gelöscht)
+            database.ref(`puls_live_data/favorites/${currentPartner}`).update({
+                [qId]: isFav ? null : true
+            }).catch(e => console.error("Firebase Fav Update Fehler:", e));
+
+            // Listen sofort neu laden, damit die Karte hoch oder runter springt
+            renderMatchesLists();
+            
+            if(!isFav) {
+                if(window.navigator.vibrate) window.navigator.vibrate(30);
+                showToast("Als Favorit markiert! ⭐");
+            }
+        }
+
+        // ==========================================
+        // MATCHES & FAVORITEN RENDER LOGIK
+        // ==========================================
         function renderMatchesLists() {
+            const favList = document.getElementById('list-matches-fav');
             const hotList = document.getElementById('list-matches-hot');
             const talkList = document.getElementById('list-matches-talk');
             
-            hotList.innerHTML = '';
-            talkList.innerHTML = '';
+            if(favList) favList.innerHTML = '';
+            if(hotList) hotList.innerHTML = '';
+            if(talkList) talkList.innerHTML = '';
 
+            let favCount = 0;
             let hotCount = 0;
             let talkCount = 0;
             const pool = getCombinedQuestionPool();
+
+            // Lade die Favoriten des aktuellen Nutzers
+            const myFavs = (appState.favorites && appState.favorites[currentPartner]) ? appState.favorites[currentPartner] : {};
 
             pool.forEach(q => {
                 const ans = appState.answers[q.id];
                 if(ans && ans.benni && ans.sarah) {
                     let b = ans.benni;
                     let s = ans.sarah;
-
                     let cleanText = (currentPartner === 'benni' ? q.textBenni : q.textSarah).replace("Fantasie: ", "");
+                    
+                    let isMatch = false;
+                    let matchType = '';
+                    let matchPrefix = '';
 
+                    // Match-Logik (inklusive Sarahs Sonderregel)
                     if(b === 'JA' && s === 'JA') {
-                        const li = document.createElement('li');
-                        li.innerText = `🔥 ${cleanText}`;
-                        hotList.appendChild(li);
-                        hotCount++;
+                        isMatch = true; matchType = 'hot'; matchPrefix = '🔥 ';
                     } 
-                    // SARAH-REGEL: Sobald Sarah "VIELLEICHT" drückt, taucht es immer auf!
                     else if (s === 'VIELLEICHT') {
-                        const li = document.createElement('li');
-                        li.innerHTML = `<strong>[Sarah will reden]</strong><br>💬 ${cleanText}`;
-                        talkList.appendChild(li);
-                        talkCount++;
+                        isMatch = true; matchType = 'talk'; matchPrefix = '💬 <strong>[Sarah will reden]</strong><br>';
                     }
-                    // Wenn Sarah JA sagt, Benni aber VIELLEICHT will
                     else if (b === 'VIELLEICHT' && s === 'JA') {
+                        isMatch = true; matchType = 'talk'; matchPrefix = '💬 <strong>[Benni will reden]</strong><br>';
+                    }
+
+                    if (isMatch) {
+                        const isFav = myFavs[q.id];
                         const li = document.createElement('li');
-                        li.innerHTML = `<strong>[Benni will reden]</strong><br>💬 ${cleanText}`;
-                        talkList.appendChild(li);
-                        talkCount++;
+                        
+                        // Der Stern-Button (gefüllt oder leer)
+                        const starBtn = `<span onclick="toggleFavorite('${q.id}')" style="cursor:pointer; float:right; font-size:1.5rem; padding-left:15px; margin-top:-2px;">${isFav ? '⭐' : '☆'}</span>`;
+                        
+                        li.innerHTML = `${matchPrefix}${cleanText} ${starBtn}`;
+
+                        // Karte in die richtige Liste einsortieren
+                        if (isFav) {
+                            li.style.borderLeftColor = 'var(--accent-spicy)';
+                            if(favList) favList.appendChild(li);
+                            favCount++;
+                        } else if (matchType === 'hot') {
+                            if(hotList) hotList.appendChild(li);
+                            hotCount++;
+                        } else if (matchType === 'talk') {
+                            if(talkList) talkList.appendChild(li);
+                            talkCount++;
+                        }
                     }
                 }
             });
 
-            if(hotCount === 0) hotList.innerHTML = `<li class="empty-state">Noch keine absoluten Matches gefunden. Votiert weiter!</li>`;
-            if(talkCount === 0) talkList.innerHTML = `<li class="empty-state">Noch kein reizvolles Kopfkino aufgedeckt.</li>`;
+            // Leere Status-Texte anzeigen, falls Listen leer sind
+            if(favList && favCount === 0) favList.innerHTML = `<li class="empty-state">Noch keine Favoriten. Tippe bei einem Match auf den Stern ☆!</li>`;
+            if(hotList && hotCount === 0) hotList.innerHTML = `<li class="empty-state">Keine weiteren absoluten Matches gefunden.</li>`;
+            if(talkList && talkCount === 0) talkList.innerHTML = `<li class="empty-state">Kein weiteres Kopfkino aufgedeckt.</li>`;
         }
 
         function toggleLevel(lvl) {
