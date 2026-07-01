@@ -1004,10 +1004,13 @@
         }
 
         // Live Spiel - Strafe greift auf Level 5-7
+        // ==========================================
+        // LIVE SPIEL LOGIK (Mit Roulette-Effekt)
+        // ==========================================
         function drawLiveTask(target) {
             clearInterval(timerInterval);
             document.getElementById('timer-display').style.display = 'none';
-            document.getElementById('btn-skip-task').style.display = 'block';
+            document.getElementById('btn-skip-task').style.display = 'none';
 
             let pool = [];
             let prefix = "";
@@ -1028,17 +1031,51 @@
                 return;
             }
 
-            const randomTask = pool[Math.floor(Math.random() * pool.length)];
-            
+            const textBox = document.getElementById('live-task-text');
             const badge = document.getElementById('live-level-badge');
             badge.style.display = 'inline-block';
-            badge.innerText = `LEVEL ${randomTask.lvl}`;
-            
-            document.getElementById('live-task-text').innerHTML = prefix + randomTask.text;
+            badge.innerText = "🎲 ZIEHE...";
 
-            if(randomTask.timer > 0) {
-                startLiveTimer(randomTask.timer);
-            }
+            // Buttons während des Drehens deaktivieren, damit man nicht spammt
+            const buttons = document.querySelectorAll('#section-live .btn-block');
+            buttons.forEach(b => b.disabled = true);
+
+            let spins = 0;
+            const maxSpins = 12; // Anzahl der Text-Wechsel
+            
+            // Roulette-Effekt starten
+            const spinInterval = setInterval(() => {
+                const randomDummy = pool[Math.floor(Math.random() * pool.length)];
+                // Text leicht transparent und verschwommen machen für den Motion-Blur Effekt
+                textBox.innerHTML = `<span style="opacity: 0.6; filter: blur(0.5px);">${prefix}${randomDummy.text}</span>`;
+                
+                // Leichtes haptisches Ticken bei jedem Wechsel
+                if(window.navigator.vibrate) window.navigator.vibrate(15);
+                
+                spins++;
+
+                // Wenn genug gedreht wurde -> Stopp!
+                if(spins >= maxSpins) {
+                    clearInterval(spinInterval);
+                    
+                    // Finale Aufgabe festlegen
+                    const finalTask = pool[Math.floor(Math.random() * pool.length)];
+                    badge.innerText = `LEVEL ${finalTask.lvl}`;
+                    textBox.innerHTML = prefix + finalTask.text;
+                    textBox.style.opacity = "1";
+                    textBox.style.filter = "none";
+                    
+                    // Erfolgs-Vibration (Jackpot!)
+                    if(window.navigator.vibrate) window.navigator.vibrate([100, 50, 100]);
+                    
+                    document.getElementById('btn-skip-task').style.display = 'inline-block';
+                    buttons.forEach(b => b.disabled = false);
+
+                    if(finalTask.timer > 0) {
+                        startLiveTimer(finalTask.timer);
+                    }
+                }
+            }, 120); // Geschwindigkeit des Wechsels (120 Millisekunden)
         }
 
         function startLiveTimer(seconds) {
