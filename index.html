@@ -85,12 +85,55 @@
         .progress-container { width: 100%; height: 6px; background: #27272a; border-radius: 10px; margin-bottom: 6px; overflow: hidden; }
         .progress-bar { height: 100%; background: var(--accent-spicy); width: 0%; transition: width 0.4s ease; }
 
-        /* Swipe Card System */
-        .swipe-container { position: relative; height: 320px; margin-bottom: 16px; margin-top: 10px; }
-        .swipe-card { position: absolute; width: 100%; height: 100%; background: var(--card-bg); border-radius: 24px; padding: 24px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; border: 1px solid #27272a; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        .card-cat { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent-spicy); font-weight: 800; margin-bottom: 14px; background: #2e1018; padding: 4px 12px; border-radius: 20px; }
-        .card-text { font-size: 1.1rem; font-weight: 700; line-height: 1.4; flex-grow: 1; display: flex; align-items: center; justify-content: center; color: var(--text-dark); }
+        /* ==========================================
+           PREMIUM SWIPE CARD SYSTEM (Tinder Style)
+           ========================================== */
+        .swipe-container { 
+            position: relative; 
+            height: 380px; /* Etwas höher für Premium-Look */
+            margin-bottom: 20px; 
+            margin-top: 10px; 
+            perspective: 1000px; /* Für den 3D-Effekt */
+        }
         
+        .swipe-card { 
+            position: absolute; 
+            width: 100%; 
+            height: 100%; 
+            background: var(--card-bg); 
+            border-radius: 24px; 
+            padding: 24px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            text-align: center; 
+            border: 1px solid #3f3f46;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
+            transform-origin: 50% 100%;
+            will-change: transform; 
+            cursor: grab; 
+            z-index: 2; 
+            touch-action: none; 
+            background-image: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
+        }
+        
+        .swipe-card:active { cursor: grabbing; }
+        
+        /* Die Karte im Hintergrund */
+        .next-card { 
+            z-index: 1; 
+            transform: scale(0.92) translateY(20px); 
+            opacity: 0.6; 
+            pointer-events: none; 
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        
+        .card-cat { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent-spicy); font-weight: 900; margin-bottom: 14px; background: #2e1018; padding: 6px 14px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        
+        .card-text { font-size: 1.15rem; font-weight: 700; line-height: 1.5; flex-grow: 1; display: flex; align-items: center; justify-content: center; color: var(--text-dark); }
+        
+        /* --- Deine Buttons bleiben hier unverändert! --- */
         .swipe-buttons { display: flex; gap: 10px; margin-bottom: 20px; }
         .swipe-btn { flex: 1; border: none; padding: 14px; border-radius: 16px; font-size: 0.9rem; font-weight: 700; cursor: pointer; color: white; transition: transform 0.1s; }
         .swipe-btn:active { transform: scale(0.95); }
@@ -159,7 +202,12 @@
             <div class="progress-container"><div class="progress-bar" id="swipe-progress-bar"></div></div>
             <div id="swipe-stats-text" style="font-size:0.75rem; color:var(--text-light); text-align:center; margin-bottom:10px; font-weight:700;">0 / 0 Fantasien bewertet</div>
             
-            <div class="swipe-container">
+<div class="swipe-container">
+                <div class="swipe-card next-card" id="next-card">
+                    <div class="card-cat" id="next-cat-display">Bereit...</div>
+                    <div class="card-text" id="next-text-display">Die nächste Fantasie lädt...</div>
+                </div>
+                
                 <div class="swipe-card" id="active-card">
                     <div class="card-cat" id="card-cat-display">Laden...</div>
                     <div class="card-text" id="card-text-display">Verbindung wird aufgebaut...</div>
@@ -507,7 +555,7 @@
                 });
             }
 
-            /// Nur in Firebase speichern, wenn sich die Reihenfolge wirklich geändert hat
+            // 6. Nur in Firebase speichern, wenn sich die Reihenfolge wirklich geändert hat
             if (changed) {
                 database.ref('puls_live_data').update({
                     shuffledOrder: appState.shuffledOrder
@@ -617,75 +665,195 @@
             showToast("Geheim eingeschleust! Dein 'Sofort! 🔥' wurde geloggt. 🥷🏽");
         }
 
+// ==========================================
+        // PREMIUM SWIPE & TOUCH LOGIK
+        // ==========================================
         function getNewSwipeCard() {
-            const cMain = document.getElementById('card-text-display'); 
             const card = document.getElementById('active-card');
+            const nextCardObj = document.getElementById('next-card');
+            const cCat = document.getElementById('card-cat-display');
+            const cText = document.getElementById('card-text-display');
             
-            const showCard = () => {
-                if(card) {
-                    card.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
-                    card.style.transform = 'none'; 
-                    card.style.opacity = '1';
-                }
-            };
+            // Karte in die Mitte zurücksetzen
+            card.style.transition = 'none';
+            card.style.transform = 'translate(0px, 0px) rotate(0deg)';
+            card.style.opacity = '1';
+            
+            // Hintergrundkarte zurücksetzen
+            nextCardObj.style.transition = 'none';
+            nextCardObj.style.transform = 'scale(0.92) translateY(20px)';
+            nextCardObj.style.opacity = '0.6';
 
             try {
                 const pool = getCombinedQuestionPool();
-                
-                if (!pool || pool.length === 0) {
-                    if(cMain) cMain.innerText = "Fehler: Pool ist leer. Fragen eingefügt?";
-                    showCard();
-                    return;
-                }
-                
-                const nextQ = pool.find(q => {
+                if (!pool || pool.length === 0) return;
+
+                // Finde ALLE unbeantworteten Fragen für diesen Partner
+                const unanswered = pool.filter(q => {
                     if (!appState.answers || !appState.answers[q.id] || typeof appState.answers[q.id] !== 'object') return true;
                     return !appState.answers[q.id][currentPartner];
                 });
 
-                if (!nextQ) {
-                    document.getElementById('card-cat-display').innerText = "FINALE";
-                    if(cMain) cMain.innerText = "Du hast alle aktuellen Fantasien bewertet! Gleiche dich im Matches-Reiter ab. 😏";
-                    showCard(); 
+                if (unanswered.length === 0) {
+                    cCat.innerText = "FINALE";
+                    cText.innerText = "Du hast alle aktuellen Fantasien bewertet! Gleiche dich im Matches-Reiter ab. 😏";
+                    currentSwipeId = null;
                     return;
                 }
 
-                document.getElementById('card-cat-display').innerText = categories[nextQ.cat] || "Spicy";
-                if(cMain) cMain.innerText = currentPartner === 'benni' ? nextQ.textBenni : nextQ.textSarah;
-                
-                currentSwipeId = nextQ.id;
-                showCard(); 
-                
+                // 1. Die aktive Karte laden
+                const activeQ = unanswered[0];
+                cCat.innerText = categories[activeQ.cat] || "Spicy";
+                cText.innerText = currentPartner === 'benni' ? activeQ.textBenni : activeQ.textSarah;
+                currentSwipeId = activeQ.id;
+
+                // 2. Die Karte darunter laden (Vorausschau)
+                if (unanswered.length > 1) {
+                    const nextQ = unanswered[1];
+                    document.getElementById('next-cat-display').innerText = categories[nextQ.cat] || "Spicy";
+                    document.getElementById('next-text-display').innerText = currentPartner === 'benni' ? nextQ.textBenni : nextQ.textSarah;
+                } else {
+                    document.getElementById('next-text-display').innerText = "Das ist die letzte Karte!";
+                }
+
+                // Touch-Gesten aktivieren!
+                initSwipeDrag();
+
             } catch (error) { 
-                if(cMain) cMain.innerText = "Code-Fehler beim Laden: " + error.message;
-                showCard();
+                cText.innerText = "Fehler: " + error.message; 
             }
         }
 
-        function handleSwipe(vote) {
+        function initSwipeDrag() {
+            const card = document.getElementById('active-card');
+            const nextCard = document.getElementById('next-card');
+            if(!card) return;
+
+            let isDragging = false;
+            let startX = 0, startY = 0, currentX = 0, currentY = 0;
+
+            // Alte Listener sicher entfernen (falls Funktion mehrfach aufgerufen wird)
+            card.onmousedown = null;
+            card.ontouchstart = null;
+
+            card.onmousedown = dragStart;
+            // { passive: false } ist auf Handys zwingend nötig, um das Wischen zu erlauben
+            card.addEventListener('touchstart', dragStart, { passive: false });
+
+            function dragStart(e) {
+                if(!currentSwipeId) return; 
+                
+                isDragging = true;
+                currentX = 0; // WICHTIG: Setzt den Zieh-Wert bei jedem neuen Anfassen auf Null zurück!
+                currentY = 0;
+
+                const isTouch = e.type.includes('touch');
+                startX = isTouch ? e.touches[0].clientX : e.clientX;
+                startY = isTouch ? e.touches[0].clientY : e.clientY;
+                
+                card.style.transition = 'none'; 
+                if(nextCard) nextCard.style.transition = 'transform 0.1s, opacity 0.1s';
+                
+                // Wir lauschen jetzt aktiv auf die Bewegung
+                document.addEventListener('mousemove', dragMove, { passive: false });
+                document.addEventListener('touchmove', dragMove, { passive: false });
+                document.addEventListener('mouseup', dragEnd);
+                document.addEventListener('touchend', dragEnd);
+            }
+
+            function dragMove(e) {
+                if (!isDragging) return;
+                
+                // WICHTIG: Verbietet dem Handy das eigene Scrollen/Zurückwischen!
+                if(e.cancelable) e.preventDefault(); 
+                
+                const isTouch = e.type.includes('touch');
+                currentX = (isTouch ? e.touches[0].clientX : e.clientX) - startX;
+                currentY = (isTouch ? e.touches[0].clientY : e.clientY) - startY;
+
+                const rotate = currentX * 0.05;
+                card.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${rotate}deg)`;
+
+                if(nextCard) {
+                    const progress = Math.min(Math.abs(currentX) / window.innerWidth, 1); 
+                    const newScale = 0.92 + (0.08 * progress);
+                    const newY = 20 - (20 * progress);
+                    const newOpacity = 0.6 + (0.4 * progress);
+                    
+                    nextCard.style.transform = `scale(${newScale}) translateY(${newY}px)`;
+                    nextCard.style.opacity = newOpacity;
+                }
+            }
+
+            function dragEnd() {
+                if (!isDragging) return;
+                isDragging = false;
+                
+                // Listener wieder aufräumen
+                document.removeEventListener('mousemove', dragMove);
+                document.removeEventListener('touchmove', dragMove);
+                document.removeEventListener('mouseup', dragEnd);
+                document.removeEventListener('touchend', dragEnd);
+
+                const threshold = window.innerWidth * 0.25; 
+
+                card.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s';
+                if(nextCard) nextCard.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s';
+
+                if (currentX > threshold) {
+                    handleSwipe('JA', currentX, currentY);
+                } else if (currentX < -threshold) {
+                    handleSwipe('NEIN', currentX, currentY);
+                } else if (currentY < -threshold) {
+                    handleSwipe('VIELLEICHT', currentX, currentY);
+                } else {
+                    card.style.transform = 'translate(0px, 0px) rotate(0deg)';
+                    if(nextCard) {
+                        nextCard.style.transform = 'scale(0.92) translateY(20px)';
+                        nextCard.style.opacity = '0.6';
+                    }
+                }
+            }
+        }
+        // Die verbesserte Handle-Swipe Funktion (animiert flüssig weiter)
+        function handleSwipe(vote, currentX = 0, currentY = 0) {
             try {
                 const qId = currentSwipeId; 
                 if(!qId) return;
                 
                 const card = document.getElementById('active-card'); 
+                const nextCard = document.getElementById('next-card');
+                
+                // Haptic Feedback (Vibration, falls vom Browser unterstützt)
+                if (window.navigator && window.navigator.vibrate) {
+                    window.navigator.vibrate(vote === 'JA' ? [30, 50, 30] : 40);
+                }
+
                 if(card) {
-                    card.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s';
-                    if (vote === 'JA') card.style.transform = 'translateY(-100px) translateX(300px) rotate(20deg)';
-                    else if (vote === 'NEIN') card.style.transform = 'translateY(-100px) translateX(-300px) rotate(-20deg)';
-                    else card.style.transform = 'translateY(-300px) scale(0.8)';
+                    card.style.transition = 'transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s';
+                    
+                    // Schießt die Karte aus dem Bild (abhängig von Richtung oder Button)
+                    let throwX = currentX !== 0 ? currentX * 3 : (vote === 'JA' ? window.innerWidth : (vote === 'NEIN' ? -window.innerWidth : 0));
+                    let throwY = currentY !== 0 ? currentY * 3 : (vote === 'VIELLEICHT' ? -window.innerHeight : -100);
+                    let rotate = throwX * 0.05;
+
+                    card.style.transform = `translate(${throwX}px, ${throwY}px) rotate(${rotate}deg)`;
                     card.style.opacity = '0';
+                    
+                    // Die untere Karte schnappt zu 100% nach vorne
+                    nextCard.style.transform = 'scale(1) translateY(0px)';
+                    nextCard.style.opacity = '1';
                 }
                 
+                // Nach Ablauf der Flug-Animation -> Firebase & Neue Karte laden
                 setTimeout(() => {
                     try {
-                        // 1. Lokalen State für sofortiges Feedback updaten
                         if (!appState.answers) appState.answers = {};
                         if (!appState.answers[qId] || typeof appState.answers[qId] !== 'object') {
                             appState.answers[qId] = { benni: "", sarah: "" };
                         }
                         appState.answers[qId][currentPartner] = vote; 
                         
-                        // 2. FIREBASE UPDATE: Überschreibt nur exakt diesen einen Vote!
                         database.ref(`puls_live_data/answers/${qId}`).update({
                             [currentPartner]: vote
                         }).catch(e => console.error("Firebase Update Fehler:", e));
@@ -695,7 +863,7 @@
                     } catch(innerErr) {
                         console.error("Crash beim Speichern der Karte:", innerErr);
                     }
-                }, 300);
+                }, 400); // 400ms Flugzeit abwarten
 
             } catch (err) {
                 console.error("Fehler beim Swipe", err);
