@@ -17,7 +17,56 @@
             --danger-color: #ef4444;
             --transition-speed: 0.25s;
         }
+/* ==========================================
+           SILENT CHECK-IN SLIDER STYLING
+           ========================================== */
+        .slider-container {
+            margin: 20px 0;
+            padding: 10px;
+            background: #09090b;
+            border-radius: 16px;
+            border: 1px solid #27272a;
+        }
 
+        .vibe-display {
+            font-size: 1.1rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 20px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.3;
+            transition: color 0.3s ease;
+        }
+
+        input[type=range].horny-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range].horny-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 28px;
+            width: 28px;
+            border-radius: 50%;
+            background: var(--accent-spicy);
+            cursor: pointer;
+            margin-top: -10px;
+            box-shadow: 0 0 15px rgba(225, 29, 72, 0.4);
+            border: 2px solid white;
+            transition: background 0.3s ease;
+        }
+
+        input[type=range].horny-slider::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: #27272a;
+            border-radius: 4px;
+        }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg-color); color: var(--text-dark); overflow-x: hidden; padding-bottom: 90px; }
         
@@ -95,7 +144,17 @@
     </header>
 
     <div class="container">
-        
+        <div id="partner-vibe-banner" style="display: none; background: #18181b; border: 1px solid #27272a; padding: 12px 16px; border-radius: 16px; margin-bottom: 16px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-light); margin-bottom: 4px;">
+                Aktueller Vibe von <span id="partner-name-display" style="font-weight: 800; color: white;">Partner</span>
+            </div>
+            <div id="partner-vibe-text" style="font-size: 1rem; font-weight: 800;">
+                Lade Status...
+            </div>
+            <div id="partner-vibe-time" style="font-size: 0.65rem; color: #52525b; margin-top: 6px;">
+                Gerade eben
+            </div>
+        </div>
         <section id="section-swipe" class="view-section active">
             <div class="progress-container"><div class="progress-bar" id="swipe-progress-bar"></div></div>
             <div id="swipe-stats-text" style="font-size:0.75rem; color:var(--text-light); text-align:center; margin-bottom:10px; font-weight:700;">0 / 0 Fantasien bewertet</div>
@@ -182,7 +241,8 @@
             <button class="btn-block btn-primary" style="background:var(--accent-spicy);" onclick="drawLiveTask('verlierer')">🏆 Strafe für Verlierer (Lvl 5-7)</button>
         </section>
 
-        <section id="section-sync" class="view-section">
+<section id="section-sync" class="view-section">
+            
             <div class="dashboard-box" style="text-align:center;">
                 <h3 style="font-weight:800; margin-bottom:6px;">📱 Identität wählen</h3>
                 <p style="font-size:0.75rem; color:var(--text-light); line-height:1.4; margin-bottom:14px;">Wem gehört dieses Gerät? Die Fantasien passen sich an.</p>
@@ -193,12 +253,30 @@
                 </div>
             </div>
 
+            <div class="dashboard-box" style="border-left: 3px solid var(--accent-spicy);">
+                <div style="font-size:0.9rem; font-weight:800; color:var(--text-dark); margin-bottom:8px;">🌡️ Vibe Check-In</div>
+                <p style="font-size:0.75rem; color:var(--text-light); margin-bottom:12px; line-height: 1.4;">
+                    Setze deinen Status lautlos. Dein Partner sieht dein Vibe-Level oben im Bildschirm, ohne dass ihr darüber reden müsst.
+                </p>
+
+                <div class="slider-container">
+                    <div id="vibe-text" class="vibe-display" style="color: #a1a1aa;">
+                        Heute geht gar nichts 🛑
+                    </div>
+                    
+                    <input type="range" class="horny-slider" id="vibe-slider" min="0" max="5" value="0" step="1" oninput="updateVibeSlider()">
+                </div>
+
+                <button class="btn-block" style="background:#27272a; border:1px solid var(--accent-spicy); color:var(--accent-spicy); margin-top: 10px;" onclick="saveVibeCheckIn()">Vibe heimlich senden 📡</button>
+            </div>
+
             <div class="sync-panel-card">
                 <div style="font-size:0.9rem; font-weight:800; color: var(--success-color); margin-bottom: 8px;">☁️ Cloud Sync Aktiv</div>
                 <p style="font-size:0.8rem; color:var(--text-light); line-height: 1.4;">
-                    Eure Geräte sind live über Firebase verbunden. Swipes und Matches werden sofort in Millisekunden synchronisiert.
+                    Eure Geräte sind live über Firebase verbunden. Swipes, Matches und Vibes werden sofort in Millisekunden synchronisiert.
                 </p>
             </div>
+            
         </section>
 
     </div>
@@ -6998,6 +7076,1266 @@
                 id: "fs_60", role: "Sarah", cat: "taboo",
                 textBenni: `Sarah sitzt auf dir. Sie hat zwei Finger tief in deinem Anus, reibt deine Prostata und gibt dir gleichzeitig einen Handjob. Du ertrinkst heulend in ihrer Nässe und ihren Händen.`,
                 textSarah: `Du sitzt auf ihm, hast zwei Finger tief in seinem Anus, reibst seine Prostata und gibst ihm einen Handjob. Er ertrinkt keuchend in deiner Nässe und deinen Händen.`
+            },
+// ==========================================
+            // KATEGORIE: DIE MASSAGELIEGE (Ergonomie, Öl & Absolute Hingabe)
+            // ==========================================
+
+            // --- DAS KOPFTEIL & VULNERABILITÄT ---
+            {
+                id: "ml_01", role: "Benni", cat: "voyeur",
+                textBenni: `Sarah liegt auf dem Bauch, das Gesicht im Nasenschlitz. Sie sieht absolut nichts von dem, was du hinter ihr tust. Du nutzt diese Blindheit, um sie mit deinen Berührungen völlig in den Wahnsinn zu treiben.`,
+                textSarah: `Du liegst auf dem Bauch, das Gesicht im Nasenschlitz. Du starrst auf den Boden und hast keine Ahnung, was er hinter dir macht. Diese absolute Hilflosigkeit macht dich wahnsinnig geil.`
+            },
+            {
+                id: "ml_02", role: "Benni", cat: "taboo",
+                textBenni: `Sarah liegt auf dem Bauch. Du hockst dich unter das Kopfteil der Liege, schaust von unten durch den Schlitz direkt in ihr Gesicht und leckst sie von unten durch die Aussparung.`,
+                textSarah: `Du liegst auf der Liege. Er hockt sich unter das Kopfteil, schaut von unten durch den Nasenschlitz zu dir hoch und fängt plötzlich an, dich von unten durch die Öffnung zu lecken.`
+            },
+            {
+                id: "ml_03", role: "Benni", cat: "action",
+                textBenni: `Die perfekte Höhe: Sarah liegt auf dem Bauch. Du stehst ganz bequem hinter ihr. Du dringst hart von hinten ein, während sie ihr Gesicht in das weiche Polster drückt und stöhnt.`,
+                textSarah: `Er steht hinter der Liege, du liegst auf dem Bauch. Die Höhe ist perfekt. Er dringt kompromisslos von hinten in dich ein, während du dein Gesicht stöhnend in das weiche Polster drückst.`
+            },
+            {
+                id: "ml_04", role: "Benni", cat: "dirty",
+                textBenni: `Sarahs Gesicht ruht im Polster. Du beugst dich von hinten über sie, drückst deinen Oberkörper flach auf ihren Rücken und flüsterst ihr extrem versaut direkt ins Ohr, was du gleich mit ihr machst.`,
+                textSarah: `Dein Gesicht ruht im Polster. Er drückt seinen warmen Oberkörper flach auf deinen Rücken, beugt sich vor und flüstert dir extrem versaut ins Ohr, was er gleich mit dir anstellen wird.`
+            },
+            {
+                id: "ml_05", role: "Sarah", cat: "slow",
+                textBenni: `Sarah liegt auf dem Rücken. Ihr Kopf hängt leicht über die Kante des Kopfteils nach hinten. Du stehst Kopf an Kopf hinter ihr, streichst ihr die Haare aus dem Gesicht und küsst sie verkehrtherum.`,
+                textSarah: `Du liegst auf dem Rücken, dein Kopf hängt leicht über die Kante nach hinten. Er steht hinter dir, streicht dir sanft die Haare aus dem Gesicht und küsst dich unglaublich zärtlich verkehrtherum.`
+            },
+            {
+                id: "ml_06", role: "Benni", cat: "toys",
+                textBenni: `Sarah liegt auf dem Bauch, das Gesicht im Schlitz. Du schiebst ihr von hinten lautlos einen kleinen Plug ein. Sie zuckt zusammen, weil sie es nicht hat kommen sehen.`,
+                textSarah: `Du liegst auf dem Bauch, blind für alles hinter dir. Er schiebt dir völlig lautlos einen kleinen Plug ein. Du zuckst lustvoll zusammen, weil du es absolut nicht hast kommen sehen.`
+            },
+            {
+                id: "ml_07", role: "Sarah", cat: "domsub",
+                textBenni: `Sarah krallt ihre Hände um die äußeren Griffe des Kopfteils. Du drückst ihr Becken fest auf die Liege und vögelst sie in dieser fixierten Position kompromisslos in die Matratze.`,
+                textSarah: `Du krallst deine Hände fest um die äußeren Griffe des Kopfteils. Er drückt dein Becken auf die Liege und nimmt dich in dieser völlig ausgelieferten Position hart von hinten.`
+            },
+            {
+                id: "ml_08", role: "Benni", cat: "action",
+                textBenni: `Während du in sie eindringst, greifst du von hinten unter die Liege durch den Gesichtsschlitz und ziehst sie an den Haaren leicht nach hinten zu dir.`,
+                textSarah: `Während er dich von hinten nimmt, greift er unter die Liege, fasst durch den Gesichtsschlitz in deine Haare und zieht deinen Kopf leicht und fordernd zu sich nach hinten.`
+            },
+            {
+                id: "ml_09", role: "Benni", cat: "voyeur",
+                textBenni: `Du massierst Sarahs Rücken. Sie hat die Augen offen und schaut durch den Schlitz auf den Boden. Du hast vorher einen Spiegel unter die Liege gelegt, damit sie sich selbst sehen kann.`,
+                textSarah: `Du schaust durch den Nasenschlitz auf den Boden. Er hat dort einen Spiegel platziert. Du kannst genau sehen, wie er dich von hinten verwöhnt und wie dein eigener Körper reagiert.`
+            },
+            {
+                id: "ml_10", role: "Sarah", cat: "taboo",
+                textBenni: `Sarah liegt mit dem Gesicht im Polster. Du kniest auf der Liege über ihr, lässt dich herabsinken und reibst deinen harten Schaft stundenlang extrem langsam durch ihre nasse Pofalte.`,
+                textSarah: `Du liegst auf dem Bauch. Er kniet über dir auf der Liege, lässt sich herabsinken und reibt seine Härte stundenlang extrem heiß und fordernd durch deine nasse Pofalte.`
+            },
+
+            // --- ROLLENSPIEL: DER PROFESSIONELLE MASSEUR ---
+            {
+                id: "ml_11", role: "Benni", cat: "roleplay",
+                textBenni: `Du bist der professionelle Masseur. Sarah ist nackt unter einem Handtuch. Du bleibst komplett formell ("Entspannen Sie die Schultern"), bis das Handtuch ganz zufällig immer weiter nach unten rutscht.`,
+                textSarah: `Er spielt den Masseur. Du liegst nackt unter einem Handtuch. Er siezt dich und bleibt absolut formell, bis das Handtuch "ganz aus Versehen" immer weiter nach unten wegrutscht.`
+            },
+            {
+                id: "ml_12", role: "Benni", cat: "slow",
+                textBenni: `Du knetest Sarahs Gesäßmuskeln (Gluteus) mit warmem Öl extrem tief durch. Es ist eine medizinische Massage, aber der Druck so nah an ihrem Zentrum lässt sie innerlich glühen.`,
+                textSarah: `Er massiert deine Gesäßmuskeln mit warmem Öl extrem tief durch. Es fühlt sich medizinisch an, aber dieser feste Druck so nah an deiner Mitte lässt dich innerlich völlig glühen.`
+            },
+            {
+                id: "ml_13", role: "Benni", cat: "dirty",
+                textBenni: `Du massierst ihre Oberschenkelinnenseiten. Du kommst ihrem Zentrum bei jedem Streichen einen Millimeter näher. Sie zittert und wartet nur darauf, dass deine Finger endlich abrutschen.`,
+                textSarah: `Er massiert deine Oberschenkelinnenseiten. Er kommt deiner Mitte bei jedem Streichen einen Millimeter näher. Du zitterst und wartest nur darauf, dass seine Finger endlich abrutschen.`
+            },
+            {
+                id: "ml_14", role: "Benni", cat: "roleplay",
+                textBenni: `Die Yoni-Massage: Du erklärst Sarah mit ruhiger, professioneller Stimme, dass du nun ihre sensibelsten Nerven entspannen wirst. Du verwöhnst sie mit der Hand, völlig klinisch und doch so intim.`,
+                textSarah: `Die Yoni-Massage: Er erklärt dir völlig professionell, dass er nun deine sensibelsten Nerven entspannt. Er verwöhnt dich mit der Hand – eine Mischung aus klinischer Ruhe und tiefster Intimität.`
+            },
+            {
+                id: "ml_15", role: "Benni", cat: "action",
+                textBenni: `Die Massage eskaliert. Du ziehst dir im Stehen wortlos das T-Shirt aus, drehst sie auf den Rücken, wirfst das Handtuch weg und nimmst sie direkt auf der öligen Liege.`,
+                textSarah: `Die Massage eskaliert. Er zieht sich wortlos das Shirt aus, dreht dich herrisch auf den Rücken, reißt das Handtuch weg und nimmt dich direkt, nass und hart auf der Liege.`
+            },
+            {
+                id: "ml_16", role: "Benni", cat: "soft",
+                textBenni: `Du nutzt ein extrem heißes, duftendes Massage-Öl. Du gießt es ihr langsam den Nacken hinunter und verstreichst es in langen, fließenden Bewegungen über ihren ganzen Körper.`,
+                textSarah: `Er gießt extrem heißes, duftendes Öl langsam deinen Nacken hinunter. Er verstreicht es in endlosen, fließenden Bewegungen über deinen ganzen Körper. Du schmilzt völlig dahin.`
+            },
+            {
+                id: "ml_17", role: "Benni", cat: "taboo",
+                textBenni: `Du drehst sie auf den Rücken. Du massierst ihren Bauch und lässt deine geölten Finger dann völlig absichtlich in sie hineingleiten, während du ihr weiter emotionslos in die Augen schaust.`,
+                textSarah: `Er dreht dich auf den Rücken, massiert deinen Bauch und lässt seine geölten Finger dann völlig berechnend in dich gleiten, während er dir weiter ruhig und professionell in die Augen schaut.`
+            },
+            {
+                id: "ml_18", role: "Benni", cat: "slow",
+                textBenni: `Die absolute Entspannung: Du massierst Sarah eine volle Stunde lang. Kein Sex, kein Eindringen. Du sorgst nur dafür, dass sich jeder Muskel auf dieser Liege in Butter verwandelt.`,
+                textSarah: `Die absolute Entspannung: Er massiert dich eine volle Stunde lang. Kein Sex, kein Eindringen. Er sorgt einfach nur dafür, dass sich jeder Muskel in deinem Körper in Butter verwandelt.`
+            },
+            {
+                id: "ml_19", role: "Benni", cat: "voyeur",
+                textBenni: `Du bist fast fertig mit der Massage. Du bittest sie, sich auf den Rücken zu drehen, und breitest ihre Beine aus, "um die Hüften zu dehnen". Du betrachtest in Ruhe ihr feuchtes Zentrum.`,
+                textSarah: `Er bittet dich, dich auf den Rücken zu drehen, und breitet deine Beine aus, "um die Hüften zu dehnen". Er nutzt die offene Position, um in aller Ruhe dein nasses Zentrum zu bewundern.`
+            },
+            {
+                id: "ml_20", role: "Benni", cat: "roleplay",
+                textBenni: `Sarah muss die Massage "bezahlen". Nachdem du ihre Verspannungen gelöst hast, schließt du die Tür der Praxis ab und forderst naturalien als Trinkgeld ein.`,
+                textSarah: `Du musst deine Massage "bezahlen". Nachdem er alle Verspannungen gelöst hat, schließt er die Tür seiner Praxis ab und fordert eine sehr eindeutige, körperliche Gegenleistung ein.`
+            },
+
+            // --- ERGONOMIE, KANTEN & WINKEL ---
+            {
+                id: "ml_21", role: "Sarah", cat: "action",
+                textBenni: `Sarah liegt auf dem Rücken. Du schiebst sie an die Tischkante, sodass ihr Po leicht in der Luft hängt. Du stehst bequem davor und kannst so tief wie noch nie in sie stoßen.`,
+                textSarah: `Du liegst auf dem Rücken, dein Po hängt über die Tischkante in der Luft. Er steht bequem davor. Dieser extreme Winkel lässt ihn tiefer in dich stoßen als jemals zuvor.`
+            },
+            {
+                id: "ml_22", role: "Benni", cat: "action",
+                textBenni: `Sarah liegt auf der Liege. Du legst ihre Beine auf deine Schultern. Du nutzt dein volles Körpergewicht, drückst dich tief in sie hinein und hältst sie an den Rändern der Liege fest.`,
+                textSarah: `Du liegst auf der Liege. Er legt deine Beine auf seine Schultern. Er nutzt sein volles Körpergewicht aus dem Stand und drückt sich so tief in dich, dass dir fast die Luft wegbleibt.`
+            },
+            {
+                id: "ml_23", role: "Benni", cat: "soft",
+                textBenni: `Sarah sitzt auf der Kante der Liege, die Beine baumeln. Du kniest dich vor sie, schiebst ihre Knie auseinander und leckst sie in dieser perfekten, entspannten Position endlos aus.`,
+                textSarah: `Du sitzt auf der Kante der Liege, die Beine baumeln. Er kniet zwischen deinen Beinen, schiebt deine Knie auseinander und leckt dich in dieser perfekten, bequemen Position endlos aus.`
+            },
+            {
+                id: "ml_24", role: "Sarah", cat: "action",
+                textBenni: `Sarah kniet auf der Liege, der Oberkörper flach abgelegt. Du stehst hinter ihr am Fußende. Der Höhenunterschied ist ideal für die extremste Doggy-Position eures Lebens.`,
+                textSarah: `Du kniest auf der Liege, den Oberkörper flach nach vorn gelegt. Er steht hinter dir auf dem Boden. Der Höhenunterschied sorgt für die härteste Doggy-Position eures Lebens.`
+            },
+            {
+                id: "ml_25", role: "Benni", cat: "dirty",
+                textBenni: `Du legst sie quer über die Liege. Ihr Kopf hängt auf der einen Seite runter, ihre Füße auf der anderen. Du beugst dich über sie und nimmst sie in dieser völlig verdrehten, wilden Pose.`,
+                textSarah: `Er legt dich quer über die schmale Liege. Dein Kopf hängt auf der einen Seite, deine Füße auf der anderen. Eine völlig verdrehte, wilde Pose, in der du ihm komplett ausgeliefert bist.`
+            },
+            {
+                id: "ml_26", role: "Sarah", cat: "toys",
+                textBenni: `Du hast sie an der Kante der Liege. Sie presst einen kleinen Vibrator genau zwischen eure Körper, während du stehend in sie stößt. Die Vibration überträgt sich auf euch beide.`,
+                textSarah: `Du liegst an der Kante. Du presst einen Vibrator genau zwischen eure Körper, während er stehend in dich stößt. Das Plastik der Liege federt mit und verstärkt die Vibration.`
+            },
+            {
+                id: "ml_27", role: "Benni", cat: "voyeur",
+                textBenni: `Du setzt Sarah auf die Liege und befiehlst ihr, die Beine weit aufzustellen. Du gehst zwei Schritte zurück, bewunderst das Bild und fängst an, dich vor ihren Augen selbst zu berühren.`,
+                textSarah: `Er setzt dich auf die Liege und befiehlt dir, die Beine weit aufzustellen. Er geht zwei Schritte zurück, bewundert deinen Anblick und fängt an, sich vor deinen Augen selbst zu berühren.`
+            },
+            {
+                id: "ml_28", role: "Sarah", cat: "action",
+                textBenni: `Du nimmst sie stehend. Die Liege quietscht bei jedem Stoß rhythmisch mit. Du lässt dich davon anstacheln und wirst immer lauter und härter.`,
+                textSarah: `Er nimmt dich stehend. Das Gestell der Massageliege quietscht bei jedem Stoß rhythmisch mit. Das Geräusch stachelt ihn an und er wird immer lauter und härter.`
+            },
+            {
+                id: "ml_29", role: "Benni", cat: "domsub",
+                textBenni: `Du drückst Sarah bäuchlings flach auf die Liege. Du nutzt dein Körpergewicht, um sie komplett zu fixieren. Sie kann nicht entkommen, während du dich schwer an ihr reibst.`,
+                textSarah: `Er drückt dich bäuchlings flach auf das Kunstleder. Er legt sich mit seinem ganzen Körpergewicht auf dich. Du kannst nicht entkommen, während er sich schwer und hart an dir reibt.`
+            },
+            {
+                id: "ml_30", role: "Benni", cat: "slow",
+                textBenni: `Du hebst Sarahs Hüfte an und legst eine zusammengerollte Handtuchrolle unter ihr Becken. Dieser leichte Winkel kippt sie perfekt an und macht das sanfte Eindringen noch viel intensiver.`,
+                textSarah: `Er hebt deine Hüfte und legt ein Handtuch unter dein Becken. Dieser Winkel auf der flachen Liege kippt dich perfekt an und macht sein langsames Eindringen unfassbar intensiv.`
+            },
+
+            // --- SARAH ÜBERNIMMT DIE KONTROLLE (Die Masseurin) ---
+            {
+                id: "ml_31", role: "Sarah", cat: "domsub",
+                textBenni: `Du liegst auf dem Bauch im Gesichtsschlitz. Sarah gießt Öl auf deinen Rücken. Sie rutscht rittlings auf dich, streichelt dich und reibt ihre feuchte Mitte provokant an deinem Steißbein.`,
+                textSarah: `Er liegt blind auf dem Bauch. Du gießt Öl auf seinen Rücken, setzt dich rittlings auf ihn und reibst deine feuchte Spalte absichtlich und geil an seinem Steißbein ab.`
+            },
+            {
+                id: "ml_32", role: "Sarah", cat: "action",
+                textBenni: `Du liegst auf dem Rücken. Sarah kniet über dir auf der Liege. Sie führt dich in sich ein, stützt sich auf deine Brust und reitet dich in völliger Kontrolle so tief, wie sie es will.`,
+                textSarah: `Er liegt auf dem Rücken. Du kniest über ihm auf der weichen Liege. Du führst ihn in dich ein, stützt dich auf seine Brust und reitest ihn dominant und tief, wie du es brauchst.`
+            },
+            {
+                id: "ml_33", role: "Sarah", cat: "taboo",
+                textBenni: `Sarah spielt die strenge Masseurin. Du liegst auf dem Bauch. Sie nutzt extrem viel Öl und massiert tief zwischen deinen Pobacken. Du bist völlig hilflos und ihr ausgeliefert.`,
+                textSarah: `Du spielst die strenge Masseurin. Er liegt auf dem Bauch. Du nutzt extrem viel Öl und fährst bei der Massage tief zwischen seine Pobacken. Du hast die totale Kontrolle über ihn.`
+            },
+            {
+                id: "ml_34", role: "Sarah", cat: "dirty",
+                textBenni: `Sarah beugt sich über dich, während sie dich massiert. Ihre nackten, schweren Brüste streifen immer wieder über deinen Rücken. Du darfst dich nicht umdrehen.`,
+                textSarah: `Du beugst dich nackt über ihn, während du seinen Rücken massierst. Deine Brüste streifen weich über seine Haut. Er darf sich absolut nicht umdrehen.`
+            },
+            {
+                id: "ml_35", role: "Sarah", cat: "slow",
+                textBenni: `Sarah massiert sanft deine Kopfhaut, während dein Gesicht im Polster ruht. Sie fährt mit den Fingernägeln leicht über deinen Nacken und flüstert dir Beruhigendes ins Ohr.`,
+                textSarah: `Du massierst sanft seine Kopfhaut, während sein Gesicht im Polster ruht. Du fährst mit den Nägeln leicht über seinen Nacken und flüsterst ihm völlig erdende Worte zu.`
+            },
+            {
+                id: "ml_36", role: "Sarah", cat: "voyeur",
+                textBenni: `Du liegst auf dem Rücken. Sarah räkelt sich nackt auf dir. Die Liege ist schmal, ihr müsst euch extrem gut ausbalancieren, was eure Körper noch dichter aneinanderpresst.`,
+                textSarah: `Er liegt auf dem Rücken. Du räkelst dich nackt auf ihm. Die Liege ist schmal, ihr müsst euch aneinanderklammern, um nicht runterzufallen, was euch unfassbar nah zusammenbringt.`
+            },
+            {
+                id: "ml_37", role: "Sarah", cat: "action",
+                textBenni: `Sarah kniet hinter deinem Kopf am Nasenschlitz. Du hast die Augen offen. Sie schiebt dir ihre feuchte Spalte direkt vors Gesicht. Du kannst nicht weg, du musst sie lecken.`,
+                textSarah: `Du kniest hinter seinem Kopfteil. Sein Gesicht ist im Nasenschlitz eingeklemmt. Du schiebst ihm deine nasse Pussy direkt vors Gesicht. Er kann nicht weg, er muss dich lecken.`
+            },
+            {
+                id: "ml_38", role: "Sarah", cat: "taboo",
+                textBenni: `Sarah nutzt einen Finger und extrem viel Öl. Während du auf dem Bauch liegst, reizt sie sanft und behutsam dein Perineum (Damm), um dich völlig aus der Fassung zu bringen.`,
+                textSarah: `Du nutzt einen Finger und Öl. Er liegt hilflos auf dem Bauch, während du sanft und bestimmt seinen Damm massierst, um ihn völlig aus der Fassung zu bringen.`
+            },
+            {
+                id: "ml_39", role: "Sarah", cat: "domsub",
+                textBenni: `Sarah befiehlt dir, die Hände unter der Liege zusammenzulegen. Sie wickelt einen Gürtel darum. Du bist jetzt ihr Gefangener auf der Massageliege.`,
+                textSarah: `Du befiehlst ihm, die Hände unter der Liege zusammenzulegen und wickelst einen Gürtel darum. Er ist jetzt dein wehrloser Gefangener auf der Massageliege.`
+            },
+            {
+                id: "ml_40", role: "Sarah", cat: "dirty",
+                textBenni: `Sarah massiert dich. Du bekommst eine harte Erektion, die sich schmerzhaft schön gegen das flache Polster drückt. Sie weiß das genau und lässt dich eiskalt leiden.`,
+                textSarah: `Du massierst ihn. Du weißt ganz genau, dass seine harte Erektion extrem unangenehm gegen das flache Polster drückt, aber du lässt ihn eiskalt und grinsend leiden.`
+            },
+
+            // --- NURU, KÖRPERKONTAKT & SENSORY OVERLOAD ---
+            {
+                id: "ml_41", role: "Benni", cat: "action",
+                textBenni: `Die Nuru-Massage: Du reibst Sarah und dich selbst komplett mit warmem, extrem rutschigem Öl ein. Du legst dich auf sie und ihr gleitet völlig schwerelos übereinander.`,
+                textSarah: `Die Nuru-Massage: Er reibt euch beide komplett mit glitschigem Öl ein. Er legt sich auf dich und eure Körper gleiten auf dem flachen Polster völlig schwerelos aneinander ab.`
+            },
+            {
+                id: "ml_42", role: "Sarah", cat: "voyeur",
+                textBenni: `Das Kunstleder der Liege fühlt sich glatt und kühl auf Sarahs nackter Haut an. Du drehst sie immer wieder hin und her, um jede glänzende Stelle ihres Körpers zu bewundern.`,
+                textSarah: `Das Kunstleder fühlt sich extrem glatt und kühl auf deiner Haut an. Er dreht dich immer wieder hin und her, um jeden ölig glänzenden Zentimeter deines Körpers zu bewundern.`
+            },
+            {
+                id: "ml_43", role: "Benni", cat: "slow",
+                textBenni: `Du bist so eingeölt, dass du nicht einmal deine Hände benutzt. Du massierst Sarahs Rücken und Po ausschließlich, indem du dich mit deiner Brust und deinen Oberschenkeln auf ihr reibst.`,
+                textSarah: `Er nutzt keine Hände. Er massiert deinen eingeölten Rücken und Po ausschließlich, indem er sich mit seiner Brust, seiner Härte und seinen Beinen fließend über dich schiebt.`
+            },
+            {
+                id: "ml_44", role: "Benni", cat: "taboo",
+                textBenni: `Sarah liegt auf dem Bauch. Du lässt einen Eiswürfel ihren Nacken hinunterrutschen und fährst danach sofort mit heißem Öl über dieselbe Stelle. Sie zuckt vor Reizüberflutung.`,
+                textSarah: `Du liegst auf dem Bauch. Er lässt einen Eiswürfel deinen Rücken hinabgleiten und gießt sofort extrem heißes Öl auf dieselbe Stelle. Du zuckst vor Reizüberflutung brutal zusammen.`
+            },
+            {
+                id: "ml_45", role: "Sarah", cat: "action",
+                textBenni: `Ihr seid beide extrem rutschig. Du versuchst in sie einzudringen, aber ihr gleitet immer wieder ab. Dieses rutschige "Verfehlen" macht euch beide völlig wahnsinnig vor Lust.`,
+                textSarah: `Ihr seid beide extrem ölig. Er versucht einzudringen, aber ihr gleitet auf der Liege immer wieder aneinander ab. Dieses feuchte, wilde Verfehlen macht euch völlig wahnsinnig.`
+            },
+            {
+                id: "ml_46", role: "Benni", cat: "dirty",
+                textBenni: `Du drückst ihre nackten, weichen Brüste auf das flache, ölige Kunstleder und massierst sie von hinten, während sie ihr eigenes Spiegelbild im Boden anschaut.`,
+                textSarah: `Er drückt deine nackten Brüste sanft auf das glatte, ölige Kunstleder. Er massiert dich von hinten in die Liege, während du unter dir auf den Fußboden starrst.`
+            },
+            {
+                id: "ml_47", role: "Sarah", cat: "slow",
+                textBenni: `Sarah ist komplett eingeölt. Du bittest sie, sich selbst auf der Liege zu räkeln und die glatte Oberfläche zu spüren. Du lehnst dich zurück und siehst ihr nur zu.`,
+                textSarah: `Du bist komplett eingeölt. Er bittet dich, dich selbst auf der Liege zu räkeln und das glatte Leder auf deiner Haut zu spüren. Er lehnt sich zurück und sieht dir fasziniert zu.`
+            },
+            {
+                id: "ml_48", role: "Benni", cat: "soft",
+                textBenni: `Nach der Massage nimmst du ein warmes, feuchtes Handtuch und wischst Sarah Zentimeter für Zentimeter ab. Eine extrem pflegende, ruhige Aftercare direkt auf der Liege.`,
+                textSarah: `Nach der Nuru-Massage nimmt er ein feuchtes, sehr heißes Handtuch und wischt das Öl Zentimeter für Zentimeter von dir ab. Pure, liebevolle Aftercare direkt auf der Liege.`
+            },
+            {
+                id: "ml_49", role: "Benni", cat: "taboo",
+                textBenni: `Ihr habt die Liege ins Badezimmer oder auf eine Plane gestellt. Es gibt keine Grenzen mehr. Überall ist Öl, ihr seid dreckig, laut und völlig in euren Trieben verloren.`,
+                textSarah: `Die Liege steht auf einer Plane. Es gibt absolut keine Grenzen mehr. Überall ist Öl, ihr seid unverschämt, extrem laut und verliert euch komplett auf dem rutschigen Polster.`
+            },
+            {
+                id: "ml_50", role: "Sarah", cat: "dirty",
+                textBenni: `Du verteilst das Öl nicht mit den Händen, sondern indem du mit der Zunge eine riesige, nasse Spur von ihrem Nacken bis direkt zwischen ihre Pobacken ziehst.`,
+                textSarah: `Er verteilt das Öl nicht mit den Händen. Er zieht mit der Zunge eine riesige, heiße und nasse Spur direkt von deinem Nacken bis tief in deine Pofalte.`
+            },
+
+            // --- FIXIERUNG, LIGHT BDSM & ABSOLUTE HINGABE ---
+            {
+                id: "ml_51", role: "Benni", cat: "domsub",
+                textBenni: `Die schmalen Beine der Liege sind perfekt: Du bindest Sarahs Fußgelenke sanft mit Krawatten an die Tischbeine. Ihre Beine sind weit gespreizt und sie ist dir völlig ausgeliefert.`,
+                textSarah: `Er nutzt die stabilen Tischbeine der Liege und bindet deine Fußgelenke sanft, aber sicher daran fest. Deine Beine sind weit gespreizt, du bist auf dem Polster völlig wehrlos.`
+            },
+            {
+                id: "ml_52", role: "Benni", cat: "domsub",
+                textBenni: `Du verbindest Sarah die Augen, legst sie auf die Liege und streichst stundenlang mit einer Feder über ihre Haut. Die Ungewissheit, was als nächstes kommt, lässt sie beben.`,
+                textSarah: `Deine Augen sind verbunden. Du liegst auf der Liege. Er streicht stundenlang mit einer Feder über dich. Die absolute Ungewissheit, was er als nächstes tut, lässt dich am ganzen Körper beben.`
+            },
+            {
+                id: "ml_53", role: "Benni", cat: "domsub",
+                textBenni: `Sarahs Hände sind an das Kopfteil gebunden. Sie kniet auf der Liege. Du gibst ihr mit der flachen Hand einen harten, roten Klaps auf den Po, der laut durch den Raum hallt.`,
+                textSarah: `Deine Hände sind ans Kopfteil fixiert. Du kniest auf der Liege. Er gibt dir mit der flachen Hand einen harten Klaps auf den Po, der laut klatschend durch das Zimmer hallt.`
+            },
+            {
+                id: "ml_54", role: "Sarah", cat: "taboo",
+                textBenni: `Du legst einen kleinen, vibrierenden Bullet in Sarah, schnallst sie an der Liege fest und gehst für 10 Minuten aus dem Zimmer. Sie bleibt allein mit dem summenden Toy zurück.`,
+                textSarah: `Er legt dir ein summendes Toy ein, fixiert dich an der Liege und verlässt einfach den Raum. Du bleibst 10 Minuten allein, gefesselt und zitternd vor Lust zurück.`
+            },
+            {
+                id: "ml_55", role: "Benni", cat: "action",
+                textBenni: `Sarah wehrt sich spielerisch. Du drückst ihre Handgelenke flach auf das Kunstleder und flüsterst: "Hör auf zu zappeln. Du wolltest es hart, du kriegst es hart."`,
+                textSarah: `Du wehrst dich spielerisch. Er drückt deine Handgelenke flach auf das Leder, fixiert dich mit seinem Gewicht und flüstert: "Hör auf zu zappeln. Du kriegst es jetzt genau so, wie du es willst."`
+            },
+            {
+                id: "ml_56", role: "Benni", cat: "domsub",
+                textBenni: `Du verpasst Sarah eine Augenbinde und Ohropax. Der absolute sensorische Entzug. Sie liegt auf der Liege und spürt nichts weiter als deine extrem harten Stöße in sie hinein.`,
+                textSarah: `Augenbinde und Ohropax. Der absolute sensorische Entzug. Du liegst wehrlos auf der Liege und spürst nur noch seine extrem harten, kompromisslosen Stöße tief in dir.`
+            },
+            {
+                id: "ml_57", role: "Sarah", cat: "dirty",
+                textBenni: `Sarah fleht dich an, in sie einzudringen. Du zwingst sie, auf der Liege zu bleiben, und leckst sie stattdessen eine volle Stunde lang, bis sie fast vor Frustration und Lust weint.`,
+                textSarah: `Du flehst ihn an, in dich einzudringen. Er zwingt dich auf der Liege zu bleiben und leckt dich erbarmungslos eine volle Stunde lang, bis du vor lauter Lust und Frustration fast weinst.`
+            },
+            {
+                id: "ml_58", role: "Benni", cat: "domsub",
+                textBenni: `Die Liege ist dein Altar. Du behandelst Sarah wie dein persönliches Eigentum. Du wendest sie, drehst sie und nimmst sie in jedem Winkel, während sie sich völlig widerstandslos hingibt.`,
+                textSarah: `Die Liege ist sein Altar. Er behandelt dich wie sein persönliches Eigentum. Er wendet dich, dreht dich und nimmt dich in jedem Winkel, und du gibst dich ihm völlig widerstandslos hin.`
+            },
+            {
+                id: "ml_59", role: "Benni", cat: "taboo",
+                textBenni: `Du tropfst lauwarmes Kerzenwachs auf Sarahs Rücken, während sie im Gesichtsschlitz festklemmt. Der kurze Schmerz brennt sich tief in ihr Gedächtnis, bevor du ihn wegküsst.`,
+                textSarah: `Dein Gesicht klemmt im Nasenschlitz. Er tropft sanft lauwarmes Kerzenwachs auf deinen Rücken. Der kurze, stechende Reiz brennt sich in dich ein, bevor er ihn sanft wegküsst.`
+            },
+            {
+                id: "ml_60", role: "Sarah", cat: "domsub",
+                textBenni: `Das finale Kommando: Sarah liegt gefesselt auf der Liege. Du flüsterst: "Du kommst jetzt." Du benutzt den Magic Wand auf höchster Stufe, bis sie ohnmächtig vor Lust wegsackt.`,
+                textSarah: `Du liegst fixiert auf der Liege. Er flüstert: "Du kommst jetzt." Er drückt den Magic Wand auf höchster Stufe auf deine Mitte und zwingt dich kompromisslos in einen gewaltigen Orgasmus.`
+            },
+// ==========================================
+            // KATEGORIE 1: ALTER EGOS & ROLLENSPIEL (Der Ausbruch aus dem Alltag)
+            // ==========================================
+            {
+                id: "rp_01", cat: "roleplay",
+                textBenni: `Ihr seid heute Fremde. Du sprichst ${nameSarah} an der Hotelbar an. Ihr wisst nichts voneinander, es gibt keinen Alltag, nur diese knisternde, verbotene Spannung zwischen zwei Unbekannten.`,
+                textSarah: `Ihr seid Fremde. ${nameBenni} spricht dich an der Bar an. Es gibt keine Ehe, keinen Alltag, keine Verpflichtungen. Nur die extreme Spannung, von einem gutaussehenden Fremden abgeschleppt zu werden.`
+            },
+            {
+                id: "rp_02", cat: "roleplay",
+                textBenni: `Das erste Date: Ihr zieht euch schick an und tut so, als würdet ihr euch zum allerersten Mal treffen. Du machst ihr Komplimente und versuchst nervös, sie am Ende des Abends ins Bett zu kriegen.`,
+                textSarah: `Das erste Date: Ihr tut so, als würdet ihr euch das erste Mal treffen. Er macht dir nervös Komplimente und versucht den ganzen Abend, dich endlich rumzukriegen. Du lässt ihn zappeln.`
+            },
+            {
+                id: "rp_03", cat: "roleplay",
+                textBenni: `Der Handwerker: Du klingelst an eurer eigenen Tür in Arbeitskleidung. ${nameSarah} öffnet. Du bist nur hier, um "ein Rohr zu verlegen", und verhältst dich dementsprechend dreist.`,
+                textSarah: `Der Handwerker: ${nameBenni} klingelt in Arbeitsklamotten. Er ist nur hier, um etwas zu "reparieren", verhält sich extrem dreist und schaut dir völlig ungeniert auf den Hintern.`
+            },
+            {
+                id: "rp_04", cat: "roleplay",
+                textBenni: `Chef und Sekretärin: Du bestellst sie streng in dein "Büro" (Schlafzimmer). Du diktierst ihr Aufgaben und bestrafst sie hart, weil sie angeblich einen Fehler gemacht hat.`,
+                textSarah: `Chef und Sekretärin: Er bestellt dich streng in sein Büro. Er diktiert dir völlig herablassend Aufgaben und bestraft dich hart, weil du einen angeblichen "Fehler" gemacht hast.`
+            },
+            {
+                id: "rp_05", cat: "roleplay",
+                textBenni: `Die Ex-Affäre: Ihr tut so, als wärt ihr beide eigentlich in anderen Beziehungen, könnt aber die Finger nicht voneinander lassen. Euer Sex ist getrieben von purem schlechten Gewissen und wilder Gier.`,
+                textSarah: `Die verbotene Affäre: Ihr tut so, als wärt ihr vergeben und dürftet das hier eigentlich gar nicht tun. Euer Sex ist laut, wild und getrieben von purem Adrenalin und schlechtem Gewissen.`
+            },
+            {
+                id: "rp_06", cat: "roleplay",
+                textBenni: `Der Einbrecher: Du überraschst ${nameSarah} im Dunkeln im Schlafzimmer. Du drückst sie aufs Bett, hältst ihr den Mund zu und flüsterst: "Keinen Ton. Mach genau, was ich sage."`,
+                textSarah: `Der Einbrecher: Er überrascht dich im Dunkeln, drückt dich aufs Bett, hält dir den Mund zu und flüstert bedrohlich heiß: "Keinen Ton. Mach genau, was ich sage."`
+            },
+            {
+                id: "rp_07", cat: "roleplay",
+                textBenni: `Die reiche Witwe und der Toyboy: ${nameSarah} bezahlt dich (mit Spielgeld oder Kommandos). Du bist nur ihr Spielzeug für heute Nacht und musst ihr jeden Wunsch von den Augen ablesen.`,
+                textSarah: `Die reiche Witwe: Du kaufst dir ${nameBenni} für heute Nacht. Er ist dein Toyboy. Er hat keine eigenen Bedürfnisse zu haben, sondern muss dich von vorne bis hinten bedienen.`
+            },
+            {
+                id: "rp_08", cat: "roleplay",
+                textBenni: `Blind Date im eigenen Haus: Ihr verabredet euch per Nachricht im Flur. Ihr dürft euch nicht beim Umziehen sehen, trefft euch und fallt sofort übereinander her.`,
+                textSarah: `Blind Date im Haus: Ihr verabredet euch per Nachricht im eigenen Flur. Ihr trefft euch komplett unerwartet gestylt und fallt wie ausgehungerte Fremde übereinander her.`
+            },
+            {
+                id: "rp_09", cat: "roleplay",
+                textBenni: `Die Massage-Praxis: Du bist der professionelle Masseur. Du bleibst komplett formell ("Ist der Druck angenehm, gnädige Frau?"), bis du "aus Versehen" zu tief rutschst.`,
+                textSarah: `Die Massage: Er ist der professionelle Masseur. Er siezt dich, bleibt komplett formell und anständig, bis er völlig kalkuliert und "aus Versehen" zu tief rutscht.`
+            },
+            {
+                id: "rp_10", cat: "roleplay",
+                textBenni: `Der Nachhilfelehrer: ${nameSarah} tut so, als wäre sie das unschuldige, ahnungslose Mädchen, das dir Fragen stellt, während sie sich gleichzeitig völlig offensichtlich vor dir auszieht.`,
+                textSarah: `Die Nachhilfe: Du spielst das absolut unschuldige, naive Mädchen. Du stellst ihm harmlose Fragen, während du dich ganz langsam und offensichtlich vor ihm ausziehst.`
+            },
+            {
+                id: "rp_11", cat: "roleplay",
+                textBenni: `Der Fotograf: Du nimmst dein Handy. ${nameSarah} ist das Model. Du dirigierst sie in absolut unanständige Posen und fasst sie dabei immer wieder "nur zum Korrigieren" an.`,
+                textSarah: `Das Shooting: Er ist der Fotograf, du das Model. Er dirigiert dich in absolut schmutzige Posen und fasst dich immer wieder "nur zum Korrigieren" völlig dreist an.`
+            },
+            {
+                id: "rp_12", cat: "roleplay",
+                textBenni: `Der Therapeut: ${nameSarah} liegt auf der Couch und erzählt dir von ihren schmutzigsten Fantasien. Du hörst professionell zu, bis du aufstehst und ihre Fantasien direkt in die Tat umsetzt.`,
+                textSarah: `Die Sitzung: Du liegst auf der Couch und beichtest ihm deine dunkelsten Fantasien. Er hört professionell zu, bis er aufsteht und beschließt, dich "praktisch" zu therapieren.`
+            },
+            {
+                id: "rp_13", cat: "roleplay",
+                textBenni: `Das Verhör: Du bindest ${nameSarah} auf einen Stuhl. Du befragst sie streng nach einem "Geheimnis" und bestrafst jede Lüge mit einem Vibrator oder Streicheleinheiten.`,
+                textSarah: `Das Verhör: Er bindet dich an einen Stuhl. Er stellt dir strenge Fragen und bestraft jede deiner Antworten mit intensiven Streicheleinheiten oder dem Vibrator.`
+            },
+            {
+                id: "rp_14", cat: "roleplay",
+                textBenni: `Der Mitbewohner: Ihr tut so, als würdet ihr nur in einer WG wohnen und dürftet eigentlich nichts miteinander anfangen. Die Spannung staut sich beim gemeinsamen Kochen ins Unermessliche.`,
+                textSarah: `Die WG: Ihr seid nur Mitbewohner. Eure Berührungen in der Küche sind "rein zufällig", bis sich die Spannung so sehr aufbaut, dass ihr euch gegen den Kühlschrank drückt.`
+            },
+            {
+                id: "rp_15", cat: "roleplay",
+                textBenni: `Die Entführung: Du wirfst ${nameSarah} unerwartet über die Schulter, trägst sie ins Schlafzimmer, wirfst sie aufs Bett und nimmst dir einfach herrisch, was dir gehört.`,
+                textSarah: `Die Entführung: Er wirfst dich völlig unerwartet über die Schulter, trägt dich ins Schlafzimmer, wirft dich aufs Bett und nimmt sich absolut herrisch, was ihm gehört.`
+            },
+
+            // ==========================================
+            // KATEGORIE 2: THE SNEAKY QUICKIE (Gefahr, Adrenalin & Babyphone)
+            // ==========================================
+            {
+                id: "sq_01", cat: "action",
+                textBenni: `Jona ist gerade erst eingeschlafen. Das Babyphone steht neben euch. Ihr habt vielleicht nur 10 Minuten. Klamotten bleiben an, du öffnest nur ihre Hose und nimmst sie schnell und hart auf der Couch.`,
+                textSarah: `Jona schläft gerade ein. Das Babyphone steht leise knisternd neben euch. Keine Zeit zum Ausziehen. Er öffnet nur deine Hose und nimmt dich schnell, lautlos und hart auf der Couch.`
+            },
+            {
+                id: "sq_02", cat: "action",
+                textBenni: `Der Küchen-Quickie: ${nameSarah} kocht gerade. Du kommst von hinten, drückst sie gegen die Küchenzeile, ziehst ihren Slip zur Seite und füllst sie aus, während das Essen brutzelt.`,
+                textSarah: `Der Küchen-Quickie: Du stehst am Herd. Er kommt von hinten, schiebt deinen Slip rücksichtslos zur Seite und füllt dich tief aus, während das Essen vor euch brutzelt.`
+            },
+            {
+                id: "sq_03", cat: "action",
+                textBenni: `Während sie sich morgens im Bad schminkt, schließt du leise die Tür ab. Du setzt sie auf den Rand des Waschbeckens und vögelst sie in einer schnellen, atemlosen Nummer.`,
+                textSarah: `Du schminkst dich im Bad. Er schließt plötzlich die Tür ab, hebt dich auf den Rand des Waschbeckens und vögelt dich in einer atemlosen, schnellen Nummer.`
+            },
+            {
+                id: "sq_04", cat: "action",
+                textBenni: `Ihr wartet auf Besuch. Es klingelt in 5 Minuten. Du ziehst sie in den Flur, presst sie gegen die Wand und holst ihr mit der Hand in Rekordzeit einen Orgasmus, bevor ihr die Tür öffnet.`,
+                textSarah: `Der Besuch klingelt in 5 Minuten. Er drückt dich im Flur gegen die Wand und holt dir mit seinen Fingern in Rekordzeit einen Orgasmus. Euer kleines, unanständiges Geheimnis.`
+            },
+            {
+                id: "sq_05", cat: "action",
+                textBenni: `Mitten am Tag, beide in Jeans. Du drückst sie aufs Bett, öffnest nur die Reißverschlüsse. Das raue Reiben eurer Kleidung aneinander macht den Quickie unfassbar animalisch.`,
+                textSarah: `Mitten am Tag. Beide noch in Jeans. Er drückt dich aufs Bett, ihr öffnet nur die Reißverschlüsse. Das raue Reiben der Jeans aneinander macht die Nummer extrem animalisch.`
+            },
+            {
+                id: "sq_06", cat: "action",
+                textBenni: `Das Babyphone leuchtet. Ihr wisst, jede Sekunde könnte es vorbei sein. Du nimmst sie im Doggy-Style am Fußende des Bettes. Eure Ohren sind auf Empfang, eure Körper auf Vollgas.`,
+                textSarah: `Das Babyphone steht direkt daneben. Jede Sekunde könnte der Kleine wach werden. Er nimmt dich hart von hinten am Fußende. Der Stress und das Adrenalin machen euch rasend.`
+            },
+            {
+                id: "sq_07", cat: "action",
+                textBenni: `Der Waschmaschinen-Ritt: Die Maschine schleudert laut. Du setzt ${nameSarah} genau darauf, nutzt die Vibration und penetrierst sie schnell, während das Rumpeln der Maschine all eure Geräusche schluckt.`,
+                textSarah: `Die Waschmaschine schleudert. Er setzt dich genau darauf, nutzt die starke Vibration der Maschine und fickt dich hart, während das Rumpeln all eure Geräusche schluckt.`
+            },
+            {
+                id: "sq_08", cat: "action",
+                textBenni: `Kein Vorspiel, keine Romantik. Du kommst nach Hause, drückst sie an die Schlafzimmertür und gleitest direkt mit Gleitgel tief in sie hinein. Rein körperliche Entladung.`,
+                textSarah: `Kein Vorspiel, keine Romantik. Er kommt rein, drückt dich an die Schlafzimmertür und gleitet direkt mit Gleitgel in dich. Pure, kompromisslose körperliche Entladung.`
+            },
+            {
+                id: "sq_09", cat: "action",
+                textBenni: `Der Dusch-Quickie: Nicht romantisch baden. Einfach heißes Wasser an, sie gegen die nassen Fliesen drücken, ein Bein hochheben und tief in sie stoßen. Nach 5 Minuten seid ihr fertig.`,
+                textSarah: `Der Dusch-Quickie: Keine Romantik. Er drückt dich gegen die nassen, warmen Fliesen, hebt dein Bein hoch und stößt tief in dich. Ein absoluter Adrenalin-Kick unter Wasser.`
+            },
+            {
+                id: "sq_10", cat: "action",
+                textBenni: `Sie steht am Schreibtisch/Esstisch. Du gehst einfach vor ihr auf die Knie, ziehst ihr den Slip runter und leckst sie in wenigen Minuten zur absoluten Ekstase, bevor du wortlos gehst.`,
+                textSarah: `Du stehst am Esstisch. Er geht völlig überraschend vor dir auf die Knie, zieht dir den Slip runter und leckt dich in wenigen Minuten zur absoluten Ekstase. Dann geht er einfach.`
+            },
+            {
+                id: "sq_11", cat: "action",
+                textBenni: `Der Kleiderschrank: Ihr drückt euch halb in den offenen Schrank, zwischen die Jacken. Du hälst ihr den Mund zu, damit ihr völlig lautlos bleibt, während du sie schnell nimmst.`,
+                textSarah: `Versteckt im Kleiderschrank: Ihr drückt euch zwischen die hängenden Jacken. Er hält dir den Mund zu, damit niemand euch hört, während er dich atemlos und schnell nimmt.`
+            },
+            {
+                id: "sq_12", cat: "action",
+                textBenni: `Die 5-Minuten-Regel: Ihr stellt euch einen Timer. Wenn er klingelt, müsst ihr aufhören, egal wie nah ihr dran seid. Dieser extreme Zeitdruck macht euch augenblicklich rallig.`,
+                textSarah: `Die 5-Minuten-Regel: Ihr stellt einen Timer. Wenn er klingelt, müsst ihr sofort aufhören, egal wo ihr seid. Der Gedanke, nicht fertig zu werden, macht euch wahnsinnig geil.`
+            },
+            {
+                id: "sq_13", cat: "action",
+                textBenni: `Du sitzt auf dem Bürostuhl. ${nameSarah} setzt sich rittlings auf dich. Ihr seid beide noch im T-Shirt. Ein schneller, tiefer Ritt, bei dem sich nur eure Becken wild aneinander reiben.`,
+                textSarah: `Er sitzt auf dem Bürostuhl. Du setzt dich rittlings auf ihn, noch im T-Shirt. Ein schneller, tiefer Ritt, bei dem sich nur eure Becken völlig unkontrolliert aneinander reiben.`
+            },
+            {
+                id: "sq_14", cat: "action",
+                textBenni: `Ihr zieht die Decke über den Kopf. Alles ist dunkel und eng. Eure Atemluft wird heiß, während ihr heimlich wie Teenager unter der Decke übereinander herfallt.`,
+                textSarah: `Ihr zieht die Bettdecke komplett über den Kopf. Es ist dunkel, eng und die Luft wird heiß. Ihr fallt wie heimliche Teenager im dunklen Zelt völlig wild übereinander her.`
+            },
+            {
+                id: "sq_15", cat: "action",
+                textBenni: `Die Hand auf dem Mund: Jona schläft im Zimmer nebenan. Du vögelst ${nameSarah} so hart, dass du ihr fest die Hand auf den Mund pressen musst, damit sie nicht laut losschreit.`,
+                textSarah: `Jona schläft nebenan. Er vögelt dich so gut und so tief, dass er dir fest die Hand auf den Mund pressen muss, damit dein Stöhnen den Kleinen nicht aufweckt.`
+            },
+
+            // ==========================================
+            // KATEGORIE 3: SEMI-PUBLIC & EXHIBITIONISMUS (Draußen & Unterwegs)
+            // ==========================================
+            {
+                id: "pu_01", cat: "outdoor",
+                textBenni: `Ihr sitzt im Restaurant. Du legst deine Hand unterm Tisch auf ihren Oberschenkel, wanderst immer höher und streichelst sie genau dort, während der Kellner die Bestellung aufnimmt.`,
+                textSarah: `Ihr sitzt im Restaurant. Seine Hand wandert unterm Tisch über deinen Oberschenkel direkt zwischen deine Beine, genau in dem Moment, als der Kellner eure Bestellung aufnimmt.`
+            },
+            {
+                id: "pu_02", cat: "outdoor",
+                textBenni: `Das dunkle Parkhaus: Ihr seid auf dem Weg zum Auto. Du drückst sie in einer dunklen Ecke gegen die Betonwand und küsst sie so verlangend, als könntet ihr nicht bis nach Hause warten.`,
+                textSarah: `Das dunkle Parkhaus: Auf dem Weg zum Auto drückt er dich plötzlich in eine dunkle Ecke gegen die Betonwand. Er küsst dich so wild, dass dir fast die Knie weich werden.`
+            },
+            {
+                id: "pu_03", cat: "outdoor",
+                textBenni: `Waldspaziergang: Ihr verlasst den Hauptweg. Versteckt hinter Bäumen ziehst du ihre Leggings runter. Die frische Luft auf ihrer Haut und die Angst vor Spaziergängern ist extrem heiß.`,
+                textSarah: `Im Wald: Ihr verlasst den Weg. Versteckt hinter Bäumen zieht er deine Leggings runter. Die kalte Luft an deiner Mitte und die Gefahr, erwischt zu werden, macht dich extrem nass.`
+            },
+            {
+                id: "pu_04", cat: "outdoor",
+                textBenni: `Auf der Autobahn: ${nameSarah} beugt sich während der Fahrt auf der leeren Autobahn rüber, öffnet deine Hose und verwöhnt dich oral, während du dich aufs Fahren konzentrieren musst.`,
+                textSarah: `Auf der Autobahn: Du beugst dich rüber, öffnest seine Hose und nimmst ihn tief in den Mund, während er angestrengt versuchen muss, das Auto sicher auf der Spur zu halten.`
+            },
+            {
+                id: "pu_05", cat: "outdoor",
+                textBenni: `Umkleidekabine: Ihr quetscht euch zusammen in eine kleine Kabine. Du stellst dich hinter sie, ziehst ihr neues Kleid nach oben und nimmst sie lautlos vor dem Spiegel der Kabine.`,
+                textSarah: `Umkleidekabine: Ihr steht zusammen in der Kabine. Er stellt sich hinter dich, schiebt dein Kleid hoch und nimmt dich leise und hart, während nebenan Leute reden.`
+            },
+            {
+                id: "pu_06", cat: "outdoor",
+                textBenni: `Im dunklen Kino: Ihr sitzt in der letzten Reihe. Du öffnest ihre Hose und fingerst sie extrem langsam. Sie muss versuchen, sich auf den Film zu konzentrieren und absolut lautlos zu bleiben.`,
+                textSarah: `Im Kino: Letzte Reihe. Er öffnet deine Hose und fingert dich langsam. Du beißt dir auf die Hand, um nicht zu stöhnen, und versuchst völlig verzweifelt, normal auszusehen.`
+            },
+            {
+                id: "pu_07", cat: "outdoor",
+                textBenni: `Das Ferngesteuerte Toy: ${nameSarah} trägt draußen ein Panty-Toy. Du hast die Fernbedienung. Du drückst im Supermarkt auf die höchste Stufe und lässt sie vor anderen Leuten zittern.`,
+                textSarah: `Das Toy-Spiel: Du trägst draußen ein Panty-Toy. Er hat die Fernbedienung und stellt sie mitten im Supermarkt auf die höchste Stufe. Du krallst dich zitternd an den Einkaufswagen.`
+            },
+            {
+                id: "pu_08", cat: "outdoor",
+                textBenni: `Der Aufzug: Ihr fahrt in ein oberes Stockwerk. Du drückst den Stop-Knopf. Eine schnelle, atemlose Nummer, bevor der Aufzug wieder anfährt und die Türen aufgehen.`,
+                textSarah: `Im Aufzug: Er drückt den Stop-Knopf zwischen zwei Stockwerken. Ein atemloser, harter Quickie gegen den Spiegel, bevor der Aufzug weiterfährt und ihr so tut, als wäre nichts.`
+            },
+            {
+                id: "pu_09", cat: "outdoor",
+                textBenni: `Sex im Auto (Parkplatz): Ihr klappt die Sitze zurück. Die Enge, die beschlagenen Scheiben und die Dunkelheit geben euch das Gefühl, wieder heimliche Teenager zu sein.`,
+                textSarah: `Im Auto: Ihr klappt die Sitze zurück. Die enge Rückbank, die beschlagenen Scheiben und das Adrenalin geben dir das unfassbar heiße Gefühl, wieder ein Teenager zu sein.`
+            },
+            {
+                id: "pu_10", cat: "outdoor",
+                textBenni: `Die Party: Ihr seid bei Freunden. Du ziehst ${nameSarah} heimlich ins Gästebad, schließt ab und ihr vergnügt euch leise, während ihr die anderen durch die Tür sprechen hört.`,
+                textSarah: `Auf der Party: Er zieht dich heimlich ins Gästebad und schließt ab. Er nimmt dich übers Waschbecken gebeugt, während ihr durch die dünne Tür eure Freunde reden hört.`
+            },
+            {
+                id: "pu_11", cat: "outdoor",
+                textBenni: `Nachts im Meer/Pool: Ihr seid im Urlaub. Das Wasser ist dunkel. Unter der Wasseroberfläche streifst du ihren Bikini zur Seite und dringst unsichtbar für alle anderen in sie ein.`,
+                textSarah: `Im Wasser: Das Meer oder der Pool ist dunkel. Er zieht deinen Bikini zur Seite und dringt unter der Wasseroberfläche in dich ein. Niemand um euch herum ahnt auch nur das Geringste.`
+            },
+            {
+                id: "pu_12", cat: "outdoor",
+                textBenni: `Das Hotel-Fenster: Ihr seid in einem Hotelzimmer weit oben. Du drückst ${nameSarah} nackt gegen die große Fensterscheibe. Sie schaut auf die Stadt hinab, während du sie von hinten nimmst.`,
+                textSarah: `Das Hotel-Fenster: Er drückt dich nackt gegen die kalte, große Fensterscheibe. Du schaust auf die nächtliche Stadt hinab, während er dich kompromisslos von hinten nimmt.`
+            },
+            {
+                id: "pu_13", cat: "outdoor",
+                textBenni: `Garten im Dunkeln: Es ist spät abends. Ihr seid draußen im Garten. Du legst sie auf die Sonnenliege. Die Nachbarn schlafen, aber die absolute Stille der Nacht macht jede Bewegung extrem laut.`,
+                textSarah: `Nachts im Garten: Er legt dich draußen auf die Sonnenliege. Die Nachbarn schlafen, aber das Wissen, dass ihr komplett im Freien seid, treibt deinen Puls auf Anschlag.`
+            },
+            {
+                id: "pu_14", cat: "outdoor",
+                textBenni: `Kein Höschen-Date: Ihr geht schick essen, aber ${nameSarah} flüstert dir vorher zu, dass sie keinen Slip anhat. Das Wissen treibt dich den ganzen Abend so in den Wahnsinn, dass du kaum warten kannst.`,
+                textSarah: `Das Date: Du flüsterst ihm vor dem Ausgehen ins Ohr, dass du heute keinen Slip trägst. Du genießt es, zu sehen, wie dieses Wissen ihn den kompletten Abend über quält.`
+            },
+            {
+                id: "pu_15", cat: "outdoor",
+                textBenni: `Drive-In: Ihr parkt nachts an einem abgelegenen Aussichtspunkt im Kofferraum eures Kombis. Kofferraumklappe offen, kühle Luft, ihr seid zusammengekuschelt und fallt übereinander her.`,
+                textSarah: `Im Kombi: Ihr liegt nachts bei offener Kofferraumklappe an einem abgelegenen Ort. Die kühle Luft auf der Haut und die völlige Einsamkeit machen den Sex dort unfassbar wild.`
+            },
+
+            // ==========================================
+            // KATEGORIE 4: SENSORY DEPRIVATION & LIGHT BDSM (Totale Abgabe der Kontrolle)
+            // ==========================================
+            {
+                id: "sd_01", cat: "domsub",
+                textBenni: `Der visuelle Entzug: Du verbindest ${nameSarah} die Augen mit einem schwarzen Seidentuch. Ohne ihren Sehsinn zuckt sie bei jeder deiner Berührungen völlig unkontrolliert zusammen.`,
+                textSarah: `Die Augenbinde: Er verbindet dir die Augen. Ohne deinen Sehsinn kannst du dich nicht vorbereiten. Du zuckst bei jeder seiner heißen Berührungen völlig unvorbereitet zusammen.`
+            },
+            {
+                id: "sd_02", cat: "domsub",
+                textBenni: `Fixierte Hände: Du bindest Sarahs Hände mit einer weichen Krawatte sanft, aber fest ans Kopfende. Sie kann absolut nichts tun. Die völlige Abgabe der Kontrolle ist für sie die pure Befreiung.`,
+                textSarah: `Fixierte Hände: Er bindet deine Hände sanft ans Bett. Du kannst absolut nichts mehr leisten oder tun. Diese erzwungene, komplette Abgabe der Kontrolle befreit deinen Kopf.`
+            },
+            {
+                id: "sd_03", cat: "domsub",
+                textBenni: `Akustische Isolation: ${nameSarah} trägt Noise-Cancelling-Kopfhörer. Sie hört nur laute, pulsierende Musik. Sie sieht deine Lippen sich bewegen, hört aber nichts, während du ihren Körper eroberst.`,
+                textSarah: `Die Kopfhörer: Du trägst Noise-Cancelling-Kopfhörer mit lauter Musik. Du hörst nichts mehr von außen. Du bist komplett isoliert in deinem Körper, während er ihn erobert.`
+            },
+            {
+                id: "sd_04", cat: "domsub",
+                textBenni: `Temperatur-Folter (Blind): ${nameSarah} hat die Augen verbunden. Du fährst abwechselnd mit einem heißen, feuchten Tuch und einem eiskalten Eiswürfel über ihre nackte Haut. Sie windet sich.`,
+                textSarah: `Blindes Temperaturspiel: Deine Augen sind verbunden. Er streichelt dich abwechselnd mit einem heißen Tuch und einem eiskalten Eiswürfel. Der Kontrast lässt dich wahnsinnig werden.`
+            },
+            {
+                id: "sd_05", cat: "domsub",
+                textBenni: `Die Stille-Regel: ${nameSarah} bekommt einen Knebel (oder ein Stück Stoff). Sie darf stöhnen, aber kein einziges Wort formen. Wenn es zu viel wird, kann sie nur noch verzweifelt wimmern.`,
+                textSarah: `Der Stoff im Mund: Er gibt dir ein weiches Tuch in den Mund. Du darfst stöhnen, aber keine Worte formen. Wenn die Lust zu viel wird, kannst du dich nur noch lautlos winden.`
+            },
+            {
+                id: "sd_06", cat: "domsub",
+                textBenni: `Sensorische Überlastung: ${nameSarah} ist blind. Du massierst ihre Brustwarzen hart, während dein Vibrator gleichzeitig ihre Mitte bearbeitet. Ihr Gehirn brennt vor lauter Reizen komplett durch.`,
+                textSarah: `Überlastung: Du bist blind. Er knetet deine Brüste, während gleichzeitig ein Vibrator unerbittlich auf dir brummt. Dein Gehirn brennt vor lauter Reizen einfach durch.`
+            },
+            {
+                id: "sd_07", cat: "domsub",
+                textBenni: `Wachs-Fantasie (Light): Du zündest eine spezielle, lauwarme Massagekerze an. Du tropfst das heiße, weiche Wachs blind auf ihren Bauch und ihre Oberschenkel. Der kleine Schmerz wird sofort zu Lust.`,
+                textSarah: `Massagekerzen: Er tropft das warme, weiche Wachs einer Massagekerze auf deinen nackten Bauch. Der kurze, heiße Schreck verwandelt sich auf deiner Haut sofort in pure Lust.`
+            },
+            {
+                id: "sd_08", cat: "domsub",
+                textBenni: `Das Feder-Spiel: ${nameSarah} ist an Händen und Füßen ans Bett gebunden. Du benutzt eine weiche Feder, um ihre Fußsohlen, Kniekehlen und Innenschenkel zu kitzeln, bis sie lachend und weinend bettelt.`,
+                textSarah: `Das Kitzeln: Du bist ans Bett gebunden. Er benutzt eine weiche Feder an deinen Fußsohlen und Innenschenkeln. Du windest dich und bettelst lachend, dass er dich endlich anfasst.`
+            },
+            {
+                id: "sd_09", cat: "domsub",
+                textBenni: `Die starre Puppe: Du verbietest ihr, sich auch nur einen Millimeter zu bewegen. Wenn sie bei deinen Berührungen zuckt oder die Hüfte hebt, entziehst du dich ihr als Bestrafung sofort.`,
+                textSarah: `Regungslos: Er verbietet dir jede kleinste Bewegung. Wenn du bei seinen heißen Küssen zuckst oder ihm entgegenkommst, entzieht er sich dir sofort. Du musst völlig passiv bleiben.`
+            },
+            {
+                id: "sd_10", cat: "domsub",
+                textBenni: `Der Seidenschal: Du bindest ihre Augen nicht zu, sondern knotest den Schal fest um ihren Hals (nicht würgen). Du benutzt die Enden wie Leinen, um ihren Kopf zu dir zu ziehen, wenn du sie küsst.`,
+                textSarah: `Das Halsband: Er knotet einen Seidenschal um deinen Hals. Er nutzt die Enden wie eine Leine, um deinen Kopf herrisch zu sich zu ziehen, wenn er deinen Mund schmecken will.`
+            },
+            {
+                id: "sd_11", cat: "domsub",
+                textBenni: `Erzwungener Orgasmus: Du bindest sie fest, setzt dich rittlings auf ihre Oberschenkel und bearbeitest sie mit der Hand und dem Mund so unerbittlich, bis ihr Körper sich einfach entlädt.`,
+                textSarah: `Erzwungen: Du bist fixiert. Er sitzt auf deinen Beinen und bearbeitet deine Mitte so unerbittlich mit Mund und Händen, dass dein Körper sich völlig machtlos entladen MUSS.`
+            },
+            {
+                id: "sd_12", cat: "domsub",
+                textBenni: `Spanking (Light): ${nameSarah} liegt bäuchlings über deinen Knien. Du gibst ihr einen harten, flachen Klaps auf den nackten Hintern. Der rote Abdruck brennt und pulsiert voller Blut und Wärme.`,
+                textSarah: `Spanking: Du liegst bäuchlings über seinen Knien. Er gibt dir einen harten Klaps auf den Hintern. Der rote Abdruck brennt und das pulsierende Blut fließt direkt zwischen deine Beine.`
+            },
+            {
+                id: "sd_13", cat: "domsub",
+                textBenni: `Der Atem-Test: ${nameSarah} ist blind. Du drückst ihr kurz und bestimmt zwei Finger flach auf die Lippen und Nase, um ihr für eine Sekunde den Atem zu rauben. Der Kontrollverlust macht sie wild.`,
+                textSarah: `Atemlos: Du bist blind. Er legt dir sanft, aber bestimmt die Hand über Mund und Nase, um dir für eine kurze Sekunde den Atem zu rauben. Dieser absolute Kontrollverlust macht dich wild.`
+            },
+            {
+                id: "sd_14", cat: "domsub",
+                textBenni: `Begrenzung im Raum: Du zwingst sie, auf dem Teppich zu knien, die Hände auf dem Rücken. Du isst in Ruhe etwas am Tisch oder tippst am Handy. Sie darf erst aufstehen, wenn du es erlaubst.`,
+                textSarah: `Das Warten: Du musst nackt auf dem Teppich knien, die Hände auf dem Rücken. Er ignoriert dich fast, tippt am Handy. Die pure Erniedrigung des Wartens lässt dich dahinschmelzen.`
+            },
+            {
+                id: "sd_15", cat: "domsub",
+                textBenni: `Blindes Essen: ${nameSarah} hat die Augen verbunden und die Hände auf dem Rücken. Du fütterst sie. Sie weiß nicht, ob als nächstes eine süße Erdbeere, ein Stück Schokolade oder dein Finger in ihren Mund kommt.`,
+                textSarah: `Blinde Fütterung: Du hast die Augen verbunden, die Hände auf dem Rücken. Er füttert dich. Du weißt nie, ob du als nächstes Schokolade, Eis oder einfach nur seinen Finger in den Mund bekommst.`
+            },
+// ==========================================
+            // KATEGORIE: DIRTY TALK & AUDIOS (Sprachnachrichten & Flüstern)
+            // ==========================================
+
+            // --- SPRACHNACHRICHTEN AUF DIE ARBEIT / UNTERWEGS ---
+            {
+                id: "dt_01", role: "Sarah", cat: "dirty",
+                textBenni: `Mitten am Arbeitstag bekommst du eine Sprachnachricht. ${nameSarah} flüstert nah ins Mikro: "Ich habe gerade an heute Morgen gedacht... und jetzt bin ich komplett nass. Beeil dich heute Abend."`,
+                textSarah: `Mitten am Arbeitstag schickst du ihm eine Sprachnachricht. Du flüsterst nah ins Mikro: "Ich habe an heute Morgen gedacht... und jetzt bin ich komplett nass. Beeil dich."`
+            },
+            {
+                id: "dt_02", role: "Sarah", cat: "voyeur",
+                textBenni: `Du fährst Auto. Eine Sprachnachricht von ihr: Im Hintergrund surrt leise ihr Vibrator. Sie atmet schwer und sagt nur: "Hörst du das? Ich stelle mir vor, dass es deine Zunge ist."`,
+                textSarah: `Er fährt Auto. Du nimmst eine Sprachnachricht auf. Im Hintergrund surrt dein Vibrator. Du atmest schwer und sagst: "Hörst du das? Ich stelle mir vor, dass es deine Zunge ist."`
+            },
+            {
+                id: "dt_03", role: "Sarah", cat: "domsub",
+                textBenni: `Nachricht von ${nameSarah}: "Mach dir für heute Abend keine Pläne. Wenn du nach Hause kommst, ziehst du dich sofort aus und wartest auf dem Bett auf mich."`,
+                textSarah: `Du schickst ihm eine eiskalte, heiße Sprachnachricht: "Mach dir heute keine Pläne. Wenn du nach Hause kommst, ziehst du dich sofort aus und wartest im Bett auf mich."`
+            },
+            {
+                id: "dt_04", role: "Sarah", cat: "dirty",
+                textBenni: `Du bist einkaufen. Auf deinen Kopfhörern hörst du ${nameSarah}s Stimme: "Kauf Gleitgel. Und bring was mit, womit du mir die Hände ans Bettgestell binden kannst."`,
+                textSarah: `Er ist beim Einkaufen. Du schickst ihm eine Audio: "Kauf Gleitgel. Und bring was mit, womit du mir heute Abend die Hände ans Bettgestell binden kannst."`
+            },
+            {
+                id: "dt_05", role: "Sarah", cat: "action",
+                textBenni: `Eine Audio von ${nameSarah}, während du im Büro sitzt: 10 Sekunden lang hörst du absolut nichts außer ihrem lauten, unkontrollierten Stöhnen und dem Klatschen ihrer Finger.`,
+                textSarah: `Du schickst ihm eine reine Audio-Aufnahme ins Büro: 10 Sekunden lang hört er nur dein unkontrolliertes Stöhnen und das feuchte Geräusch deiner Finger in dir.`
+            },
+            {
+                id: "dt_06", role: "Sarah", cat: "taboo",
+                textBenni: `Sprachnachricht: "${nameBenni}... ich trage heute keinen Slip im Büro. Jedes Mal, wenn ich die Beine übereinanderschlage, spüre ich, wie feucht ich bin. Ich brauche dich."`,
+                textSarah: `Sprachnachricht: "${nameBenni}... ich trage heute absolut keinen Slip. Jedes Mal, wenn ich die Beine übereinanderschlage, merke ich, wie nass ich werde. Ich brauche dich."`
+            },
+            {
+                id: "dt_07", role: "Sarah", cat: "slow",
+                textBenni: `Du hast Stress. ${nameSarah} schickt eine Audio: "Atme durch. Heute Abend musst du gar nichts machen. Du legst dich nur hin und ich kümmere mich um deinen ganzen Körper."`,
+                textSarah: `Er hat Stress. Du schickst eine Audio: "Atme durch. Heute Abend musst du gar nichts machen. Du legst dich nur hin und ich kümmere mich mit meinem Mund um deinen Körper."`
+            },
+            {
+                id: "dt_08", role: "Sarah", cat: "voyeur",
+                textBenni: `Du stehst an der Kasse. Audio von ${nameSarah}: "Ich stehe gerade nackt vor dem Spiegel und fasse meine Brüste an. Ich wünschte, es wären deine großen Hände."`,
+                textSarah: `Du nimmst eine Audio für ihn auf: "Ich stehe gerade nackt vor dem Spiegel und knete meine Brüste. Ich wünschte, es wären deine großen Hände, die mich anfassen."`
+            },
+            {
+                id: "dt_09", role: "Sarah", cat: "dirty",
+                textBenni: `Eine völlig unvermittelte Sprachnachricht: "Ich will, dass du mich heute Abend von hinten nimmst und mir dabei genau sagst, wie geil du meinen Arsch findest."`,
+                textSarah: `Eine völlig unvermittelte Audio an ihn: "Ich will, dass du mich heute Abend von hinten nimmst und mir dabei genau sagst, wie geil du meinen Arsch findest."`
+            },
+            {
+                id: "dt_10", role: "Sarah", cat: "taboo",
+                textBenni: `Du öffnest die Sprachnachricht. ${nameSarah} flüstert nur zwei Worte: "Fick mich." Dann bricht die Aufnahme ab.`,
+                textSarah: `Du nimmst eine extrem kurze Sprachnachricht auf. Du flüsterst leise, aber unglaublich fordernd nur zwei Worte: "Fick mich." Dann brichst du die Aufnahme ab.`
+            },
+
+            // --- SPRACHNACHRICHTEN AUS EINEM ANDEREN RAUM ZUHAUSE ---
+            {
+                id: "dt_11", role: "Sarah", cat: "voyeur",
+                textBenni: `Du bist im Wohnzimmer, sie im Bad. Sprachnachricht: "Das Wasser ist warm. Ich bin komplett eingeseift. Komm rein und wasch mich ab."`,
+                textSarah: `Er ist im Wohnzimmer. Audio aus dem Bad: "Das Wasser ist extrem warm. Ich bin komplett eingeseift. Komm rein und wasch mich ab."`
+            },
+            {
+                id: "dt_12", role: "Sarah", cat: "dirty",
+                textBenni: `Du sitzt am PC. Audio von ${nameSarah} aus dem Bett: "Ich liege hier und spreize meine Beine für dich. Komm rüber und mach, was du willst."`,
+                textSarah: `Er sitzt am PC. Audio von dir aus dem Bett: "Ich liege hier und spreize meine Beine für dich. Komm rüber und mach mit mir, was du willst."`
+            },
+            {
+                id: "dt_13", role: "Sarah", cat: "action",
+                textBenni: `Du zockst. ${nameSarah} schickt aus dem Schlafzimmer eine Audio. Man hört das feuchte Schmatzen ihrer Finger und wie sie stöhnt: "Ich krieg dich nicht mehr aus dem Kopf..."`,
+                textSarah: `Er zockt. Du schickst aus dem Bett eine Audio. Man hört das feuchte Schmatzen deiner Finger und wie du stöhnst: "Ich krieg dich nicht mehr aus dem Kopf..."`
+            },
+            {
+                id: "dt_14", role: "Sarah", cat: "domsub",
+                textBenni: `Audio aus dem Nebenzimmer: "Komm rein. Knie dich vor mich. Berühr mich erst, wenn ich es dir erlaube."`,
+                textSarah: `Audio ins Nebenzimmer: "Komm rein. Knie dich vor mich aufs Bett. Und berühr mich erst, wenn ich dir die Erlaubnis gebe."`
+            },
+            {
+                id: "dt_15", role: "Sarah", cat: "slow",
+                textBenni: `Du schaust TV. Audio von ihr: "Mir ist kalt. Komm ins Bett, leg dich nackt von hinten an mich und wärm mich mit deinem Körper auf."`,
+                textSarah: `Er schaut TV. Audio von dir: "Mir ist extrem kalt. Komm ins Bett, leg dich komplett nackt von hinten an mich und wärm mich auf."`
+            },
+            {
+                id: "dt_16", role: "Sarah", cat: "taboo",
+                textBenni: `Du bist in der Küche. Audio: "Ich habe mir gerade einen Plug eingesetzt. Es fühlt sich so voll an... Ich will, dass du ihn dir gleich ansiehst."`,
+                textSarah: `Er ist in der Küche. Audio: "Ich habe mir gerade einen Plug eingesetzt. Es fühlt sich so unglaublich voll an... Ich will, dass du ihn dir gleich genau ansiehst."`
+            },
+            {
+                id: "dt_17", role: "Sarah", cat: "dirty",
+                textBenni: `Audio aus dem Bett: "Ich will deinen Schwanz. Jetzt sofort." Es gibt keinen Interpretationsspielraum mehr.`,
+                textSarah: `Du schickst ihm eine klare Audio aus dem Bett: "Ich will deinen Schwanz. Jetzt sofort." Du lässt ihm keinen Interpretationsspielraum mehr.`
+            },
+            {
+                id: "dt_18", role: "Sarah", cat: "voyeur",
+                textBenni: `Du räumst auf. ${nameSarah} schickt eine Audio: "Lass das liegen. Stell dich in den Türrahmen und schau mir einfach 5 Minuten lang zu, wie ich es mir mache."`,
+                textSarah: `Er räumst auf. Audio an ihn: "Lass das liegen. Stell dich in den Türrahmen und schau mir einfach 5 Minuten lang zu, wie ich es mir mache."`
+            },
+            {
+                id: "dt_19", role: "Sarah", cat: "action",
+                textBenni: `Audio von ${nameSarah}: "Ich habe Gleitgel auf meinem ganzen Bauch und meinen Brüsten verteilt. Ich will, dass du drüberrutschst."`,
+                textSarah: `Audio an ihn im Wohnzimmer: "Ich habe mir gerade warmes Gleitgel auf dem Bauch und den Brüsten verteilt. Ich will, dass du über mich rutschst."`
+            },
+            {
+                id: "dt_20", role: "Sarah", cat: "dirty",
+                textBenni: `Du öffnest eine Sprachnachricht und hörst, wie ${nameSarah} einfach nur tief und befriedigt ausatmet: "Fuck, der Vibrator war gut. Aber du wärst besser."`,
+                textSarah: `Du schickst eine Sprachnachricht. Man hört dich nur tief ausatmen: "Fuck, der Vibrator war gut. Aber du wärst tausendmal besser."`
+            },
+
+            // --- DIREKTES FLÜSTERN BEIM VORSPIEL ---
+            {
+                id: "dt_21", role: "Sarah", cat: "dirty",
+                textBenni: `Ihr seid voll bekleidet unterwegs. ${nameSarah} beugt sich plötzlich zu dir und flüstert direkt in dein Ohr: "Mein Slip ist komplett nass wegen dir."`,
+                textSarah: `Ihr seid voll bekleidet. Du beugst dich plötzlich zu ihm, streifst sein Ohr und flüsterst: "Mein Slip ist gerade komplett nass wegen dir."`
+            },
+            {
+                id: "dt_22", role: "Sarah", cat: "soft",
+                textBenni: `Während du sie umarmst, haucht ${nameSarah} an deinen Hals: "Zieh mich aus. Aber ganz, ganz langsam."`,
+                textSarah: `Während er dich im Stehen umarmt, hauchst du direkt an seinen Hals: "Zieh mich aus. Aber ganz, ganz langsam."`
+            },
+            {
+                id: "dt_23", role: "Sarah", cat: "domsub",
+                textBenni: `Sie drückt dich auf die Couch, schaut dir tief in die Augen und flüstert: "Bettel mich an. Sag mir, wie sehr du mich schmecken willst."`,
+                textSarah: `Du drückst ihn auf die Couch, schaust ihm tief in die Augen und flüsterst: "Bettel mich an. Sag mir, wie sehr du mich jetzt schmecken willst."`
+            },
+            {
+                id: "dt_24", role: "Sarah", cat: "action",
+                textBenni: `Während du sie küsst, flüstert ${nameSarah} gegen deine Lippen: "Ich will spüren, wie deine Zunge in mich eindringt."`,
+                textSarah: `Während du ihn tief küsst, flüsterst du direkt gegen seine Lippen: "Ich will jetzt spüren, wie deine Zunge in mich eindringt."`
+            },
+            {
+                id: "dt_25", role: "Sarah", cat: "voyeur",
+                textBenni: `Sie zieht sich vor dir aus. Sie schaut dir in die Augen und sagt leise: "Schau genau hin. Alles das gehört nur dir."`,
+                textSarah: `Du ziehst dich langsam vor ihm aus. Du suchst seinen Blick und sagst extrem leise und ernst: "Schau genau hin. All das hier gehört nur dir."`
+            },
+            {
+                id: "dt_26", role: "Sarah", cat: "dirty",
+                textBenni: `Beim Küssen greift ${nameSarah} in deine Haare, zieht deinen Kopf leicht zurück und flüstert fordernd: "Zerstör mich heute Nacht."`,
+                textSarah: `Beim Küssen greifst du in seine Haare, ziehst seinen Kopf leicht zurück und flüsterst ihm völlig fordernd ins Gesicht: "Zerstör mich heute Nacht."`
+            },
+            {
+                id: "dt_27", role: "Sarah", cat: "taboo",
+                textBenni: `Sie reibt ihr Becken an dir, beißt dir sanft ins Ohrläppchen und raunt: "Ich will, dass du mich heute auch hinten anfasst."`,
+                textSarah: `Du reibst dein Becken an ihm, beißt ihm ins Ohrläppchen und raunst mutig: "Ich will, dass du mich heute auch hinten anfasst."`
+            },
+            {
+                id: "dt_28", role: "Sarah", cat: "slow",
+                textBenni: `Du streichelst sie. Sie schließt die Augen und flüstert: "Hör niemals auf damit. Deine Hände auf meiner Haut sind das Beste, was es gibt."`,
+                textSarah: `Er streichelt dich. Du schließt die Augen und flüsterst: "Hör bitte niemals auf damit. Deine Hände auf meiner Haut sind das absolute Highlight."`
+            },
+            {
+                id: "dt_29", role: "Sarah", cat: "action",
+                textBenni: `Sie zieht deinen Kopf nach unten Richtung ihres Bauches und flüstert: "Zeig mir, was du mit deinem Mund alles kannst."`,
+                textSarah: `Du ziehst seinen Kopf an den Haaren nach unten Richtung deines Bauches und flüsterst: "Zeig mir jetzt, was du mit deinem Mund alles kannst."`
+            },
+            {
+                id: "dt_30", role: "Sarah", cat: "dirty",
+                textBenni: `Während du ihr den BH öffnest, flüstert sie dir ins Ohr: "Ich habe den ganzen Tag nur an deinen Schwanz gedacht."`,
+                textSarah: `Während er dir sanft den BH öffnet, flüsterst du ihm ins Ohr: "Ich habe heute den ganzen verfluchten Tag nur an deinen Schwanz gedacht."`
+            },
+
+            // --- DIREKTER DIRTY TALK WÄHREND DEM SEX ---
+            {
+                id: "dt_31", role: "Sarah", cat: "dirty",
+                textBenni: `Sie reitet dich. Sie beugt sich vor, ihr Gesicht direkt über deinem, und stöhnt: "Sieh mich an. Sieh dir an, was du mit mir machst."`,
+                textSarah: `Du reitest ihn. Du beugst dich vor, dein Gesicht zentimeterweit über seinem, und stöhnst: "Sieh mich an. Sieh dir an, was du mit mir anstellst."`
+            },
+            {
+                id: "dt_32", role: "Sarah", cat: "action",
+                textBenni: `In der Missionarsstellung drückt sie ihre Nägel in deinen Rücken und keucht: "Ja, genau da! Tiefer... härter!"`,
+                textSarah: `In der Missionarsstellung drückst du deine Nägel in seinen Rücken, vergisst jede Zurückhaltung und keuchst laut: "Ja, genau da! Tiefer... härter!"`
+            },
+            {
+                id: "dt_33", role: "Sarah", cat: "taboo",
+                textBenni: `Du nimmst sie im Doggy. Sie schaut über ihre Schulter und schreit fast: "Fick meine Pussy! Benutz mich!"`,
+                textSarah: `Er nimmt dich von hinten. Du schaust über die Schulter zurück und verlierst völlig die Kontrolle: "Fick meine Pussy! Benutz mich!"`
+            },
+            {
+                id: "dt_34", role: "Sarah", cat: "slow",
+                textBenni: `Du stößt ganz langsam und tief in sie. Sie vergräbt ihr Gesicht in deinem Hals und flüstert unter Tränen der Lust: "Du fühlst dich so unfassbar gut an."`,
+                textSarah: `Er stößt extrem langsam und tief in dich. Du vergräbst das Gesicht in seinem Hals und flüsterst überwältigt: "Du fühlst dich so unfassbar gut in mir an."`
+            },
+            {
+                id: "dt_35", role: "Sarah", cat: "dirty",
+                textBenni: `Während du sie oral verwöhnst, drückt sie deinen Kopf hart gegen sich und lobt dich hemmungslos: "Fuck, deine Zunge ist perfekt. Guter Junge."`,
+                textSarah: `Während er dich leckt, drückst du seinen Kopf hart gegen dich und lobst ihn hemmungslos: "Fuck, deine Zunge ist perfekt. Guter Junge, mach genau so weiter."`
+            },
+            {
+                id: "dt_36", role: "Sarah", cat: "domsub",
+                textBenni: `Sie liegt unter dir, hält deine Hüften fest und befiehlt: "Du kommst jetzt noch nicht. Ich bestimme, wann du in mich spritzen darfst."`,
+                textSarah: `Du liegst unter ihm, hältst seine Hüften im perfekten Rhythmus fest und befiehlst: "Du kommst jetzt noch nicht. Ich bestimme, wann du in mich spritzen darfst."`
+            },
+            {
+                id: "dt_37", role: "Sarah", cat: "dirty",
+                textBenni: `Du schiebst dich in sie. Sie stöhnt auf und sagt dir genau, wie sehr sie deine Härte spürt: "Du bist so dick... du füllst mich komplett aus."`,
+                textSarah: `Er schiebt sich in dich. Du stöhnst auf und sagst ihm extrem ehrlich, wie sehr du seine Härte spürst: "Du bist so dick... du füllst mich komplett aus."`
+            },
+            {
+                id: "dt_38", role: "Sarah", cat: "voyeur",
+                textBenni: `Während du in sie eindringst, fordert sie: "Schau auf meine Brüste, während sie wackeln. Guck, wie geil mein Körper auf deine Stöße reagiert."`,
+                textSarah: `Während er in dich eindringst, forderst du laut: "Schau auf meine Brüste, während sie wackeln. Guck dir an, wie geil mein Körper auf deine Stöße reagiert."`
+            },
+            {
+                id: "dt_39", role: "Sarah", cat: "action",
+                textBenni: `Du leckst sie, und sie flüstert völlig geil: "Ja, saug an meiner Klitoris. Mach sie nass. Trink mich."`,
+                textSarah: `Er leckt dich, und du flüsterst ihm völlig hemmungslos entgegen: "Ja, saug an meiner Klitoris. Mach sie extrem nass. Trink mich einfach."`
+            },
+            {
+                id: "dt_40", role: "Sarah", cat: "slow",
+                textBenni: `Ihr bewegt euch kaum. Sie küsst dich sanft und flüstert: "Ich liebe es, wie tief du in mir ruhst. Bleib einfach genau so stecken."`,
+                textSarah: `Ihr bewegt euch kaum. Du küsst ihn sanft und flüsterst: "Ich liebe es, wie tief du in mir ruhst. Bleib bitte einfach genau so in mir stecken."`
+            },
+
+            // --- KOMMANDOS & DOMINANZ (Voice oder Direkt) ---
+            {
+                id: "dt_41", role: "Sarah", cat: "domsub",
+                textBenni: `Audio von ${nameSarah}: "Geh ins Bad. Zieh deine Hose aus. Ich will ein Video davon sehen, wie du dir deinen harten Schwanz für mich streichelst."`,
+                textSarah: `Audio an ihn: "Geh ins Bad. Zieh die Hose aus. Ich will sofort ein Video davon sehen, wie du dir deinen harten Schwanz für mich streichelst."`
+            },
+            {
+                id: "dt_42", role: "Sarah", cat: "dirty",
+                textBenni: `Sie steht nackt vor dir und gibt dir einen klaren Befehl: "Knie dich hin. Und mach ihn sauber. Mit deiner Zunge."`,
+                textSarah: `Du stehst nackt vor ihm und gibst ihm eiskalt den klaren Befehl: "Knie dich hin. Und mach mich sauber. Nur mit deiner Zunge."`
+            },
+            {
+                id: "dt_43", role: "Sarah", cat: "action",
+                textBenni: `Audio-Kommando, während du arbeitest: "Fass dich an. Jetzt. Reib ihn durch die Hose. Stell dir vor, du wärst in mir."`,
+                textSarah: `Audio-Kommando, während er im Büro ist: "Fass dich an. Jetzt sofort. Reib ihn durch die Hose und stell dir vor, du gleitest tief in mich rein."`
+            },
+            {
+                id: "dt_44", role: "Sarah", cat: "slow",
+                textBenni: `Sie liegt auf dem Bett und flüstert herrisch: "Küss meine Oberschenkel. Langsam. Und arbeite dich Millimeter für Millimeter nach oben."`,
+                textSarah: `Du liegst auf dem Bett und flüsterst herrisch: "Küss meine Oberschenkel. Langsam. Und dann arbeite dich Millimeter für Millimeter nach oben."`
+            },
+            {
+                id: "dt_45", role: "Sarah", cat: "domsub",
+                textBenni: `Sie drückt deine Schultern aufs Bett und zischt: "Beweg dich nicht. Du lässt mich jetzt die komplette Arbeit machen. Genieß es einfach."`,
+                textSarah: `Du drückst seine Schultern aufs Bett und zischst: "Beweg dich nicht. Du lässt mich jetzt die komplette Arbeit machen und hältst absolut still."`
+            },
+            {
+                id: "dt_46", role: "Sarah", cat: "taboo",
+                textBenni: `Sprachnachricht: "Ich werde dich heute Abend komplett ruinieren. Wenn ich mit dir fertig bin, kannst du nicht mal mehr stehen."`,
+                textSarah: `Du schickst ihm eine eiskalte Audio: "Ich werde dich heute Abend komplett ruinieren. Wenn ich mit dir fertig bin, kannst du nicht mal mehr stehen."`
+            },
+            {
+                id: "dt_47", role: "Sarah", cat: "dirty",
+                textBenni: `Sie nimmt dein Gesicht in die Hände und befiehlt: "Sag mir, wie sehr du meine feuchte Fotze liebst. Ich will es aus deinem Mund hören."`,
+                textSarah: `Du nimmst sein Gesicht in die Hände und befiehlst: "Sag mir, wie sehr du meine feuchte Pussy liebst. Ich will es genau jetzt aus deinem Mund hören."`
+            },
+            {
+                id: "dt_48", role: "Sarah", cat: "domsub",
+                textBenni: `Audio-Erinnerung: "Vergiss niemals: Dein Schwanz gehört mir. Und heute Abend werde ich ihn benutzen, wie ich es will."`,
+                textSarah: `Du schickst ihm eine Audio-Erinnerung: "Vergiss niemals: Dein Schwanz gehört mir. Und heute Abend werde ich ihn benutzen, genau wie ich es will."`
+            },
+            {
+                id: "dt_49", role: "Sarah", cat: "action",
+                textBenni: `Sie hebt ihr Bein über deine Schulter, schaut streng auf dich herab und flüstert nur: "Leck mich. Bis ich schreie."`,
+                textSarah: `Du hebst dein Bein über seine Schulter, schaust streng auf ihn herab und flüsterst den absoluten Befehl: "Leck mich. So lange, bis ich schreie."`
+            },
+            {
+                id: "dt_50", role: "Sarah", cat: "dirty",
+                textBenni: `Audio aus dem Bett: "Komm her. Ich will fühlen, wie du tief in mir pochst, wenn du endlich kommst."`,
+                textSarah: `Audio aus dem Bett: "Komm jetzt her. Ich will fühlen, wie dein Schwanz tief in mir pocht, wenn du endlich in mich abspritzt."`
+            },
+
+            // --- EXTREM & EXPLIZIT (Masturbation, Orgasmus, Geständnisse) ---
+            {
+                id: "dt_51", role: "Sarah", cat: "voyeur",
+                textBenni: `Post-Orgasmus-Audio: Du hörst sie völlig außer Atem. "Fuck... Ich bin gerade so heftig gekommen. Und ich habe nur daran gedacht, wie du mich nimmst."`,
+                textSarah: `Du nimmst direkt nach dem Orgasmus eine Audio auf, völlig außer Atem: "Fuck... Ich bin gerade so heftig gekommen. Und ich habe nur daran gedacht, wie du mich nimmst."`
+            },
+            {
+                id: "dt_52", role: "Sarah", cat: "action",
+                textBenni: `Während sie kommt, krallt sie sich in deine Haare und schreit dir fast ins Gesicht: "Ich komme! Fuck, spritz in mich rein!"`,
+                textSarah: `Während du kommst, krallst du dich in seine Haare und schreist ihm fast ins Gesicht: "Ich komme! Fuck, spritz endlich in mich rein!"`
+            },
+            {
+                id: "dt_53", role: "Sarah", cat: "taboo",
+                textBenni: `Eine 30-Sekunden-Audio: Kein Wort. Nur das Geräusch von schnellem, nassem Fingern, ihrem schweren Atmen und dem Surren eines Toys. Pure akustische Folter.`,
+                textSarah: `Du nimmst eine 30-Sekunden-Audio auf: Kein Wort. Nur das Geräusch von schnellem, nassem Fingern, deinem schweren Atmen und deinem Vibrator. Pure Folter für ihn.`
+            },
+            {
+                id: "dt_54", role: "Sarah", cat: "dirty",
+                textBenni: `Sprachnachricht: "Wenn du später nach Hause kommst... weck mich nicht. Deck mich einfach ab und fang an, mich mit der Zunge zu verwöhnen."`,
+                textSarah: `Du schickst ihm eine Audio-Fantasie: "Wenn du später kommst... weck mich nicht. Deck mich ab und fang einfach direkt an, mich mit der Zunge zu lecken."`
+            },
+            {
+                id: "dt_55", role: "Sarah", cat: "domsub",
+                textBenni: `Nach dem Sex flüstert sie völlig ernst: "Du bist heute so tief in mir. Hinterlass mir blaue Flecken auf den Hüften, damit ich dich morgen noch spüre."`,
+                textSarah: `Nach dem Sex flüsterst du völlig ehrlich und geil: "Du warst so tief. Hinterlass mir blaue Flecken auf den Hüften, damit ich dich morgen auf der Arbeit noch spüre."`
+            },
+            {
+                id: "dt_56", role: "Sarah", cat: "toys",
+                textBenni: `Audio: "Ich habe uns heute ein neues Toy bestellt. Du wirst deine Augen nicht glauben, wenn du siehst, wo ich mir das nachher reinschiebe."`,
+                textSarah: `Audio an ihn: "Ich habe uns heute ein neues Toy bestellt. Du wirst deine Augen nicht glauben, wenn du siehst, wo ich mir das nachher vor dir reinschiebe."`
+            },
+            {
+                id: "dt_57", role: "Sarah", cat: "dirty",
+                textBenni: `Sie zieht deinen Kopf beim 69er hoch und flüstert extrem versaut: "Ich will schmecken, wie nass du mich gemacht hast. Küss mich."`,
+                textSarah: `Du ziehst seinen Kopf beim 69er hoch und flüsterst extrem versaut: "Ich will schmecken, wie nass du meine Spalte gemacht hast. Küss mich genau jetzt."`
+            },
+            {
+                id: "dt_58", role: "Sarah", cat: "action",
+                textBenni: `Audio von ihr am Morgen: "Ich kann kaum laufen. Ich spüre dich immer noch tief in mir, so hart wie du mich gestern Nacht gefickt hast."`,
+                textSarah: `Du schickst ihm morgens eine Audio auf den Weg zur Arbeit: "Ich kann kaum laufen. Ich spüre immer noch genau, wie hart du mich gestern Nacht gefickt hast."`
+            },
+            {
+                id: "dt_59", role: "Sarah", cat: "taboo",
+                textBenni: `Sie führt deinen Schwanz an ihre Pussy, schaut dir provozierend in die Augen und flüstert nur ein einziges Kommando: "Spuck drauf."`,
+                textSarah: `Du führst seinen Schwanz an deine nasse Mitte, schaust ihm völlig provozierend in die Augen und flüsterst nur ein einziges, hartes Kommando: "Spuck drauf."`
+            },
+            {
+                id: "dt_60", role: "Sarah", cat: "voyeur",
+                textBenni: `Die ultimative Audio: "Ich reibe gerade meine Klitoris, während ich das hier aufnehme. Ich will, dass du diesen Ton als deinen Wecker einstellst."`,
+                textSarah: `Die ultimative Audio an ihn: "Ich reibe gerade meine Klitoris, während ich das hier aufnehme. Ich bin so nass. Ich will, dass du diese Aufnahme in Dauerschleife hörst."`
+            },
+// ==========================================
+            // KATEGORIE: DIGITAL TEASE & SEXTING (Bilder & Videos im Alltag)
+            // ==========================================
+            
+            // --- AUF DER ARBEIT / BÜRO ---
+            {
+                id: "nx_01", role: "Sarah", cat: "voyeur",
+                textBenni: `Du sitzt auf der Arbeit in einem wichtigen Meeting. Dein Handy vibriert. Es ist ein Bild von ${nameSarah} – sie liegt komplett nackt im Bett und zieht mit zwei Fingern ihre nassen Schamlippen auseinander.`,
+                textSarah: `Er sitzt in einem Meeting. Du schickst ihm heimlich ein Bild, auf dem du nackt im Bett liegst und deine Schamlippen für ihn spreizt. Du weißt genau, er kann jetzt absolut nichts tun, außer geil zu werden.`
+            },
+            {
+                id: "nx_02", role: "Sarah", cat: "dirty",
+                textBenni: `Mitten am Arbeitstag bekommst du ein 5-Sekunden-Video. ${nameSarah} filmt sich von unten, wie sie sanft zwei Finger in sich hineingleiten lässt, und schreibt dazu: "Wünschte, das wärst du."`,
+                textSarah: `Mitten am Arbeitstag schickst du ihm ein kurzes Video. Du filmst, wie du dir sanft zwei Finger einführst, und schreibst provokant dazu: "Wünschte, das wärst du."`
+            },
+            {
+                id: "nx_03", role: "Sarah", cat: "taboo",
+                textBenni: `Du bist im Büro. ${nameSarah} schickt dir ein Close-Up-Foto von ihrem perfekten Hintern, auf dem sie einen winzigen String trägt. Dazu die Nachricht: "Denkst du gerade an was Bestimmtes?"`,
+                textSarah: `Er ist im Büro. Du schickst ihm ein Close-Up-Foto von deinem Hintern in einem winzigen String und fragst unschuldig: "Denkst du gerade an was Bestimmtes?"`
+            },
+            {
+                id: "nx_04", role: "Sarah", cat: "action",
+                textBenni: `Dein Handy leuchtet auf dem Schreibtisch auf. Ein Video von ${nameSarah}, wie sie ihren Vibrator an ihrer Klitoris ansetzt und dabei leise, aber deutlich deinen Namen stöhnt.`,
+                textSarah: `Du schickst ihm ein Video ans Pult, in dem du deinen Vibrator an deine Klitoris ansetzt und dabei leise, aber unüberhörbar seinen Namen stöhnst.`
+            },
+            {
+                id: "nx_05", role: "Sarah", cat: "voyeur",
+                textBenni: `Während du Mails beantwortest, schickt ${nameSarah} ein Selfie aus dem Badezimmer. Sie ist frisch geduscht, Wassertropfen perlen über ihre nackten Brüste, und sie lächelt dreckig in den Spiegel.`,
+                textSarah: `Du bist frisch geduscht. Du schickst ihm ein nacktes Selfie aus dem Bad, bei dem das Wasser über deine Brüste perlt. Sein Posteingang wird plötzlich völlig nebensächlich.`
+            },
+            {
+                id: "nx_06", role: "Sarah", cat: "dirty",
+                textBenni: `Auf der Arbeit bekommst du eine Sprachnachricht. Du hältst dir das Handy ans Ohr und hörst nur, wie ${nameSarah} schwer atmet, sich offensichtlich befriedigt und "Fuck..." flüstert.`,
+                textSarah: `Du schickst ihm eine reine Sprachnachricht auf die Arbeit. Er hält sich das Handy ans Ohr und hört nur, wie du schwer atmest, dich befriedigst und "Fuck..." flüsterst.`
+            },
+            {
+                id: "nx_07", role: "Sarah", cat: "voyeur",
+                textBenni: `Ein Foto trudelt ein: ${nameSarah} hat ihre Beine weit auf der Couch gespreizt, fotografiert aus ihrer POV-Perspektive direkt auf ihre feuchte Spalte.`,
+                textSarah: `Du fotografierst aus deiner eigenen Perspektive an deinem Körper herab, spreizt die Beine weit und schickst ihm genau diesen extrem heißen Blick auf deine Mitte ins Büro.`
+            },
+            {
+                id: "nx_08", role: "Sarah", cat: "taboo",
+                textBenni: `Du stehst an der Kaffeemaschine mit Kollegen. ${nameSarah} schickt dir ein Bild, auf dem sie zwei Finger im Mund hat und sie extrem lasziv nass lutscht, um sich vorzubereiten.`,
+                textSarah: `Er steht gerade an der Kaffeemaschine. Du schickst ihm ein Foto, auf dem du provokant zwei Finger nass lutscht. Du machst ihn mitten unter seinen Kollegen nervös.`
+            },
+            {
+                id: "nx_09", role: "Sarah", cat: "action",
+                textBenni: `Ein 10-Sekunden-Video: ${nameSarah} trägt einen Rock, schiebt ihn langsam hoch, zieht ihren Slip zur Seite und lässt ihre Finger vor der Kamera über ihren Eingang kreisen.`,
+                textSarah: `Du schickst ein 10-Sekunden-Video: Du schiebst deinen Rock hoch, ziehst den Slip zur Seite und lässt deine Finger provokant und langsam über deinen Eingang kreisen.`
+            },
+            {
+                id: "nx_10", role: "Sarah", cat: "dirty",
+                textBenni: `Nachricht von ${nameSarah}: "Sitzst du gerade? Gut." Direkt danach folgt ein Foto von ihren Brüsten, die sie hart zusammenpresst, um dir einen perfekten Ausschnitt zu präsentieren.`,
+                textSarah: `Du schreibst ihm: "Sitzst du gerade? Gut." Direkt danach schickst du ein Foto, auf dem du deine nackten Brüste extrem heiß zusammenpresst.`
+            },
+
+            // --- UNTERWEGS / ALLTAG ---
+            {
+                id: "nx_11", role: "Sarah", cat: "voyeur",
+                textBenni: `Du stehst an der Kasse im Supermarkt. ${nameSarah} schickt dir ein Foto von ihrem nackten Unterleib. Man sieht nur ihren Bauch, die rasierte Mitte und wie sie mit sich selbst spielt.`,
+                textSarah: `Er steht an der Supermarktkasse. Du schickst ein Foto von deinem Unterleib. Man sieht nur deinen Bauch, deine Mitte und wie du mit deinen Fingern spielst.`
+            },
+            {
+                id: "nx_12", role: "Sarah", cat: "taboo",
+                textBenni: `Du stehst im Stau. ${nameSarah} versüßt dir die Wartezeit mit einem Video, in dem sie sich einen Anal-Plug einschiebt und dir zeigt, wie er tief in ihr verschwindet.`,
+                textSarah: `Er steht frustriert im Stau. Du versüßt ihm die Wartezeit mit einem Video, in dem du dir sanft einen Anal-Plug einschiebst und beweist, wie tief er sitzt.`
+            },
+            {
+                id: "nx_13", role: "Sarah", cat: "action",
+                textBenni: `Du bist beim Training (Gym/Laufen). Dein Handy vibriert. ${nameSarah} schickt ein Foto von sich in nasser, verschwitzter Unterwäsche, die sich völlig transparent an ihre Spalte schmiegt.`,
+                textSarah: `Er ist beim Training. Du schickst ein Foto von dir in nasser, feuchter Unterwäsche nach deinem eigenen Workout, die sich transparent an deine Mitte schmiegt.`
+            },
+            {
+                id: "nx_14", role: "Sarah", cat: "dirty",
+                textBenni: `Du bist mit Freunden unterwegs. ${nameSarah} schickt dir ein Bild von ihrem Gesicht, in das sie sich gerade einen Dildo so tief wie möglich schiebt. Du musst dir absolut nichts anmerken lassen.`,
+                textSarah: `Er ist mit Freunden unterwegs. Du schickst ein Bild, auf dem du einen Dildo tief im Mund hast. Er sitzt bei seinen Kumpels und muss versuchen, sich nichts anmerken zu lassen.`
+            },
+            {
+                id: "nx_15", role: "Sarah", cat: "voyeur",
+                textBenni: `Du bist einkaufen. ${nameSarah} schickt ein "Outfit-Check"-Foto vor dem Spiegel. Sie trägt ein schickes Kleid, schiebt es aber unten frech hoch, um zu zeigen, dass sie gar keinen Slip trägt.`,
+                textSarah: `Er ist einkaufen. Du schickst ein Outfit-Check-Foto vor dem Spiegel. Du trägst ein Kleid, hebst es aber provokant an, um ihm zu zeigen, dass du keinen Slip trägst.`
+            },
+            {
+                id: "nx_16", role: "Sarah", cat: "action",
+                textBenni: `Du sitzt im Auto auf dem Parkplatz. Ein Video kommt rein: ${nameSarah} liegt auf dem Rücken und reibt sich mit dem Magic Wand exakt in den Orgasmus. Du siehst sie zucken.`,
+                textSarah: `Er sitzt im Auto. Du schickst ein Video, in dem du dich mit dem Wand in den Orgasmus treibst. Du lässt ihn genau sehen, wie dein Körper unkontrolliert zuckt.`
+            },
+            {
+                id: "nx_17", role: "Sarah", cat: "dirty",
+                textBenni: `Mitten am Tag schickt ${nameSarah} dir ein Bild von ihren nackten Oberschenkeln, die vor Feuchtigkeit glänzen. Text: "Komm sofort nach Hause, wenn du fertig bist."`,
+                textSarah: `Mitten am Tag schickst du ihm ein Bild deiner glänzenden, nackten Oberschenkel. Text: "Komm sofort nach Hause, wenn du heute fertig bist."`
+            },
+            {
+                id: "nx_18", role: "Sarah", cat: "taboo",
+                textBenni: `Du bist nicht zu Hause. ${nameSarah} schickt ein Selfie, auf dem sie sich provokant auf deinem Kissen räkelt und dabei ihren Mittelfinger tief in sich vergraben hat.`,
+                textSarah: `Er ist weg. Du schickst ein Selfie, auf dem du dich nackt auf *seinem* Kopfkissen räkelst und deinen Mittelfinger tief in dir vergraben hast.`
+            },
+            {
+                id: "nx_19", role: "Sarah", cat: "voyeur",
+                textBenni: `Du bist unterwegs. ${nameSarah} schickt dir ein kurzes Boomerang-Video, in dem sie ihren Po im Spiegel wackeln lässt und ihn mit der Hand hart abklatscht.`,
+                textSarah: `Er ist unterwegs. Du schickst ein Boomerang-Video, in dem du vor dem Spiegel stehst und deinen eigenen nackten Hintern laut und hart abklatschst.`
+            },
+            {
+                id: "nx_20", role: "Sarah", cat: "dirty",
+                textBenni: `Nachricht von ${nameSarah}: "Ich habe eine Überraschung für dich." Das Bild lädt... Es zeigt nur ihre Hand, in der sie ein Fläschchen Gleitgel und Handschellen hält.`,
+                textSarah: `Du schreibst ihm: "Ich habe eine Überraschung." Das Bild lädt... Er sieht nur deine Hand, in der du grinsend Gleitgel und Handschellen präsentierst.`
+            },
+
+            // --- GETRENNTE RÄUME / HOME OFFICE ---
+            {
+                id: "nx_21", role: "Sarah", cat: "voyeur",
+                textBenni: `Du arbeitest im Home-Office am PC. ${nameSarah} ist im Schlafzimmer. Sie schickt dir ein Foto von ihrem nackten Körper auf dem Laken. Text: "Lass die Arbeit Arbeit sein."`,
+                textSarah: `Er arbeitet im Home-Office. Du liegst im Schlafzimmer. Du schickst ihm ein nacktes Foto von dir auf den Laken. Text: "Lass die Arbeit Arbeit sein und komm rüber."`
+            },
+            {
+                id: "nx_22", role: "Sarah", cat: "action",
+                textBenni: `Du zockst gerade an der Konsole/am PC. Ein Video kommt auf dein Handy: ${nameSarah} kniet im Raum nebenan nackt auf dem Boden und fingert sich extrem nass für dich.`,
+                textSarah: `Er zockt im anderen Raum. Du schickst ihm ein Video, in dem du nackt auf dem Boden kniest und dich extrem nass und hörbar für ihn fingerst.`
+            },
+            {
+                id: "nx_23", role: "Sarah", cat: "dirty",
+                textBenni: `Du machst den Abwasch oder räumst auf. ${nameSarah} schickt dir aus dem Bad ein Foto, auf dem sie sich in der Badewanne spreizt. "Das Wasser ist noch warm..."`,
+                textSarah: `Er macht den Abwasch. Du schickst ihm aus dem Bad ein Foto, auf dem du dich nackt in der vollen Badewanne spreizst. Text: "Das Wasser ist noch warm..."`
+            },
+            {
+                id: "nx_24", role: "Sarah", cat: "taboo",
+                textBenni: `Du liegst auf der Couch, sie im Bett. Sie schickt dir ein Bild von ihrem Hintern in der Doggy-Position. Text: "Mein Arsch wartet auf dich. Komm."`,
+                textSarah: `Du bist im Bett, er auf der Couch. Du schickst ein Bild von deinem Hintern in perfekter Doggy-Position. Text: "Mein Arsch wartet auf dich. Komm rüber."`
+            },
+            {
+                id: "nx_25", role: "Sarah", cat: "voyeur",
+                textBenni: `Du sitzt am Esstisch. ${nameSarah} schickt dir ein Foto. Sie steht im Flur, nur durch die leicht angelehnte Tür verdeckt, und man sieht, dass sie sich gerade den Slip auszieht.`,
+                textSarah: `Er sitzt ahnungslos am Esstisch. Du stehst im Flur und schickst ihm ein Bild von dir, wie du dir gerade heimlich und provokant den Slip über die Knie ziehst.`
+            },
+            {
+                id: "nx_26", role: "Sarah", cat: "action",
+                textBenni: `Du hast einen Zoom-Call (ohne Kamera) oder spielst online. ${nameSarah} schickt dir aus dem Nebenzimmer ein Video, wie der Dildo immer wieder tief in ihr verschwindet und wieder auftaucht.`,
+                textSarah: `Er ist am PC beschäftigt. Du schickst ihm ein Video, in dem ein Dildo immer wieder tief in dir verschwindet. Er muss am Schreibtisch versuchen, cool zu bleiben.`
+            },
+            {
+                id: "nx_27", role: "Sarah", cat: "dirty",
+                textBenni: `Du bist im Wohnzimmer. ${nameSarah} schickt dir ein Foto von ihren nackten Füßen, die sie hoch in die Luft streckt. Text: "Willst du nicht meine Beine auf deine Schultern legen?"`,
+                textSarah: `Er ist im Wohnzimmer. Du schickst ein Foto von deinen nackten Füßen, die du in die Luft streckst. Text: "Willst du nicht endlich meine Beine auf deine Schultern legen?"`
+            },
+            {
+                id: "nx_28", role: "Sarah", cat: "taboo",
+                textBenni: `Du arbeitest hochkonzentriert. Dein Handy plingt. Ein Selfie von ihr: Sie hat ihren Daumen im Mund und schaut so versaut, dass du den Laptop sofort zuklappst.`,
+                textSarah: `Er arbeitet hochkonzentriert im Home-Office. Du schickst ein Selfie, auf dem du extrem versaut an deinem Daumen lutschst, bis er den Laptop einfach zuklappen MUSS.`
+            },
+            {
+                id: "nx_29", role: "Sarah", cat: "voyeur",
+                textBenni: `Du bist in der Küche. ${nameSarah} schickt ein Foto. Sie trägt DEIN Hemd, offen. Ihre nackten Brüste blitzen hervor. Text: "Ich glaube, das steht mir besser als dir."`,
+                textSarah: `Du trägst SEIN Hemd, völlig offen. Du schickst ihm aus dem Bett ein Bild, auf dem deine Brüste hervorblitzen. "Ich glaube, das steht mir besser als dir."`
+            },
+            {
+                id: "nx_30", role: "Sarah", cat: "action",
+                textBenni: `Ihr seid in verschiedenen Räumen. ${nameSarah} schickt ein 5-Sekunden-Audio: Das schmatzende, feuchte Geräusch ihrer Finger, die in sie eindringen, gefolgt von einem leisen Stöhnen.`,
+                textSarah: `Ihr seid in getrennten Räumen. Du schickst ein 5-Sekunden-Audio: Das extrem heiße, feuchte Schmatzen deiner Finger in dir, gefolgt von einem leisen Stöhnen.`
+            },
+
+            // --- CLOSE-UPS & EXPLICIT TEASING ---
+            {
+                id: "nx_31", role: "Sarah", cat: "voyeur",
+                textBenni: `Ein Bild von ihr: Sie steht nackt vor dem Spiegel, dreht dir den Rücken zu und schaut über ihre Schulter provokant in die Kamera. Der perfekte Blick auf ihren Po.`,
+                textSarah: `Du stellst dich nackt vor den Spiegel, drehst ihm den Rücken zu und schaust über die Schulter provokant in die Kamera. Der perfekte Fokus auf deinen Hintern.`
+            },
+            {
+                id: "nx_32", role: "Sarah", cat: "taboo",
+                textBenni: `Du öffnest das Bild: Ein extrem nahes Close-Up von ${nameSarah}s Anus. Sie hat ihn mit Gleitgel zum Glänzen gebracht. Ein Bild, das sofort all dein Blut nach unten schießen lässt.`,
+                textSarah: `Du schickst ihm ein extrem nahes Close-Up von deinem Anus. Du hast ihn mit Gleitgel zum Glänzen gebracht. Ein Bild, bei dem er sofort seinen Verstand verliert.`
+            },
+            {
+                id: "nx_33", role: "Sarah", cat: "action",
+                textBenni: `Ein kurzes Video: ${nameSarah} zieht ihre Schamlippen auseinander, drückt leicht und zeigt dir, wie unglaublich nass und bereit sie gerade in diesem Moment für dich ist.`,
+                textSarah: `Du schickst ein Video: Du ziehst deine Schamlippen auseinander, drückst leicht und zeigst ihm, wie unglaublich nass und tropfend bereit du gerade für ihn bist.`
+            },
+            {
+                id: "nx_34", role: "Sarah", cat: "dirty",
+                textBenni: `Du bekommst ein Selfie von ihr, wie sie auf dem Rücken liegt. Auf ihrer nackten Brust liegt ein Eiswürfel, der langsam schmilzt. Text: "Mir ist heiß. Kühlst du mich ab?"`,
+                textSarah: `Du liegst auf dem Rücken, ein Eiswürfel schmilzt auf deiner Brust. Du schickst das Foto und schreibst: "Mir ist extrem heiß. Kommst du mich abkühlen?"`
+            },
+            {
+                id: "nx_35", role: "Sarah", cat: "voyeur",
+                textBenni: `Ein Bild aus der Vogelperspektive: ${nameSarah} fotografiert an sich herab. Ihre Brüste im Vordergrund, ihr rasierter Bauch und ihre Hand, die fordernd auf ihrer Mitte liegt.`,
+                textSarah: `Du fotografierst aus der Vogelperspektive an dir herab: Deine Brüste im Vordergrund, dein Bauch und deine Hand, die fordernd auf deiner nassen Mitte liegt.`
+            },
+            {
+                id: "nx_36", role: "Sarah", cat: "action",
+                textBenni: `Ein Video: ${nameSarah} liegt auf dem Rücken, zieht die Knie extrem weit an die Ohren und gibt dir den kompromisslosesten, tiefsten Einblick in ihre Mitte, den man filmen kann.`,
+                textSarah: `Du filmst ein Video: Du liegst auf dem Rücken, ziehst die Knie extrem weit an die Ohren und gibst ihm den schmutzigsten, tiefsten Einblick in dich, den es gibt.`
+            },
+            {
+                id: "nx_37", role: "Sarah", cat: "taboo",
+                textBenni: `Das "After-Workout"-Bild: ${nameSarah} schickt ein Foto direkt nach dem Sport. Sie schiebt ihre Leggings nur bis zur Mitte des Oberschenkels runter. Verschwitzt und unfassbar heiß.`,
+                textSarah: `Das After-Workout-Bild: Du schiebst nach dem Sport deine Leggings nur bis zur Mitte des Oberschenkels runter. Verschwitzt, ungeschönt und unfassbar heiß.`
+            },
+            {
+                id: "nx_38", role: "Sarah", cat: "dirty",
+                textBenni: `Du öffnest eine Nachricht. Es ist ein Bild von ${nameSarah}s geöffnetem Mund. Sie streckt dir die Zunge entgegen. Text: "Rat mal, wo die heute noch hinwandert."`,
+                textSarah: `Du schickst ihm ein Bild von deinem geöffneten Mund. Du streckst ihm die nasse Zunge entgegen und schreibst: "Rat mal, wo die heute noch hinwandert."`
+            },
+            {
+                id: "nx_39", role: "Sarah", cat: "voyeur",
+                textBenni: `Du siehst ein Foto von ${nameSarah}s Brüsten. Sie drückt sie mit beiden Händen so brutal hart zusammen, dass ihre Brustwarzen nach oben stehen und dich fast schon anspringen.`,
+                textSarah: `Du fotografierst deine Brüste. Du drückst sie mit beiden Händen so brutal heiß zusammen, dass deine Brustwarzen steil nach oben stehen und ihn fast anspringen.`
+            },
+            {
+                id: "nx_40", role: "Sarah", cat: "action",
+                textBenni: `Ein 5-Sekunden-Video: ${nameSarah} reibt sich mit der flachen Hand extrem schnell und hart über ihre nasse Vagina. Das klatschen der Haut ist laut und deutlich zu hören.`,
+                textSarah: `Du schickst ein 5-Sekunden-Video: Du reibst dich mit der flachen Hand extrem schnell und hart. Das Klatschen deiner Hand auf deiner nassen Haut ist laut zu hören.`
+            },
+
+            // --- "KOMM ZU MIR" / TEASING ---
+            {
+                id: "nx_41", role: "Sarah", cat: "dirty",
+                textBenni: `Du bist unterwegs. Bild von ${nameSarah} nackt im Flur. Text: "Die Haustür ist nicht abgeschlossen. Ich warte hier auf dich." Du drückst sofort aufs Gas.`,
+                textSarah: `Er ist unterwegs. Du schickst ihm ein Bild nackt aus dem Flur. Text: "Die Haustür ist offen. Ich warte hier." Du sorgst dafür, dass er sofort aufs Gas drückt.`
+            },
+            {
+                id: "nx_42", role: "Sarah", cat: "voyeur",
+                textBenni: `Ein Foto von ${nameSarah} in Spitzenunterwäsche. Aber sie hat den Schrittteil zur Seite gezogen, sodass ihre feuchte Spalte ungeschützt hervorblitzt.`,
+                textSarah: `Du fotografierst dich in edler Spitze. Aber du ziehst den Stoff im Schritt frech zur Seite, sodass deine feuchte Spalte ungeschützt für ihn hervorblitzt.`
+            },
+            {
+                id: "nx_43", role: "Sarah", cat: "action",
+                textBenni: `Du bekommst ein Video, wie ${nameSarah} sich extrem lasziv und stumm die Brustwarzen mit zwei Fingern zwirbelt. Ihr Blick in die Kamera verspricht den absoluten Wahnsinn.`,
+                textSarah: `Du schickst ein Video, in dem du dir stumm, aber extrem lasziv die Brustwarzen zwirbelst. Dein Blick in die Kamera verspricht ihm den absoluten Wahnsinn.`
+            },
+            {
+                id: "nx_44", role: "Sarah", cat: "taboo",
+                textBenni: `Ein Foto: ${nameSarah} hockt sich nackt vor ihr Handy. Sie spreizt ihre Backen mit beiden Händen, um dir den perfekten, unzensierten Blick auf ihr Poloch zu geben.`,
+                textSarah: `Du hockst dich nackt vor das Handy, drehst dich um und spreizt die Backen mit beiden Händen, um ihm einen perfekten, unzensierten Blick auf deinen Anus zu geben.`
+            },
+            {
+                id: "nx_45", role: "Sarah", cat: "voyeur",
+                textBenni: `Du bist am PC. Bild von ${nameSarah}. Sie liegt auf dem Rücken, die Beine in der Luft, und fotografiert von hinten durch ihre eigenen Beine auf dich im Hintergrund am Schreibtisch.`,
+                textSarah: `Du liegst hinter ihm im Bett. Du fotografierst von hinten durch deine gespreizten Beine hindurch, sodass er sich selbst ahnungslos im Hintergrund am Schreibtisch sieht.`
+            },
+            {
+                id: "nx_46", role: "Sarah", cat: "dirty",
+                textBenni: `Nachricht von ${nameSarah}: "Zieh mich aus." Das erste Bild ist sie im Kleid. Du musst ihr antworten, erst dann schickt sie Bild 2 (im Slip) und Bild 3 (komplett nackt).`,
+                textSarah: `Du schreibst ihm: "Zieh mich aus." Bild 1: Im Kleid. Er muss antworten. Dann schickst du Bild 2 (im Slip) und Bild 3 (komplett nackt und bereit).`
+            },
+            {
+                id: "nx_47", role: "Sarah", cat: "action",
+                textBenni: `Ein GIF oder kurzer Loop: ${nameSarah} schiebt sich einen Dildo rein und zieht ihn fast komplett wieder raus. Eine endlose, feuchte Dauerschleife auf deinem Display.`,
+                textSarah: `Du schickst ihm einen Loop (GIF): Du schiebst dir einen Dildo rein und ziehst ihn fast wieder raus. Eine endlose, feuchte Dauerschleife auf seinem Display.`
+            },
+            {
+                id: "nx_48", role: "Sarah", cat: "taboo",
+                textBenni: `Du stehst auf dem Parkplatz bei der Arbeit. ${nameSarah} schickt ein Video, in dem sie sich Gleitgel auf die Brüste spritzt und sie vor der Kamera völlig hemmungslos einölt.`,
+                textSarah: `Er hat gerade Feierabend. Du schickst ein Video, in dem du dir reichlich Gleitgel auf die Brüste spritzt und sie vor der Kamera völlig hemmungslos und nass einölst.`
+            },
+            {
+                id: "nx_49", role: "Sarah", cat: "voyeur",
+                textBenni: `Du bist im Supermarkt. ${nameSarah} schickt ein Foto von ihrem Gesicht. Ihre Lippen glänzen, als hätte sie gerade geblasen. Text: "Übung für später."`,
+                textSarah: `Er ist beim Einkaufen. Du machst dir die Lippen extrem nass, als hättest du gerade geblasen, fotografierst dein Gesicht und schreibst: "Übung für später."`
+            },
+            {
+                id: "nx_50", role: "Sarah", cat: "dirty",
+                textBenni: `Du bist im Büro. Ein Foto kommt: ${nameSarah}s Hand, voll mit ihrer eigenen, glänzenden Feuchtigkeit. Text: "Das hast du verpasst, während du Mails geschrieben hast."`,
+                textSarah: `Er ist im Büro. Du schickst ein Foto deiner Hand, glänzend von deiner eigenen Feuchtigkeit. Text: "Das hast du verpasst, während du Mails geschrieben hast."`
+            },
+
+            // --- DIE LETZTEN 10: ULTIMATIVER KICK ---
+            {
+                id: "nx_51", role: "Sarah", cat: "voyeur",
+                textBenni: `Ein Close-Up von ihrem Hals und Dekolleté. Sie zieht das T-Shirt nur ganz leicht nach unten, sodass man den Bruchteil eines Brustwarzenhofs erkennen kann. Das subtilste Teasing.`,
+                textSarah: `Du ziehst dein T-Shirt nur so weit nach unten, dass man im Close-Up einen Bruchteil deines Brustwarzenhofs erkennt. Das extremste, subtilste Teasing.`
+            },
+            {
+                id: "nx_52", role: "Sarah", cat: "action",
+                textBenni: `Du bist nicht da. ${nameSarah} schickt ein Video, in dem sie ihr Becken hart gegen ihr eigenes Kopfkissen drückt und sich daran reibt, als wäre es dein Gesicht.`,
+                textSarah: `Er ist nicht da. Du schickst ein Video, in dem du dein Becken hart gegen ein Kissen drückst und dich reibst, als wäre das Kissen genau sein Gesicht.`
+            },
+            {
+                id: "nx_53", role: "Sarah", cat: "taboo",
+                textBenni: `Ein Selfie: ${nameSarah} trägt eine Augenbinde und nichts weiter. Sie liegt nackt auf dem Bett. Text: "Ich sehe nichts. Du kannst machen, was du willst, wenn du heimkommst."`,
+                textSarah: `Du trägst eine Augenbinde und liegst nackt auf dem Bett. Selfie an ihn: "Ich sehe nichts. Du kannst machen, was du willst, wenn du gleich heimkommst."`
+            },
+            {
+                id: "nx_54", role: "Sarah", cat: "dirty",
+                textBenni: `Ein Video: ${nameSarah} flüstert nur in die Kamera: "Ich liebe es, wenn du mich hart nimmst." Danach bricht das Video ab. Dein Kopf explodiert.`,
+                textSarah: `Du filmst dich, schaust tief in die Kamera und flüsterst nur den Satz: "Ich liebe es, wenn du mich hart nimmst." Dann bricht das Video einfach ab.`
+            },
+            {
+                id: "nx_55", role: "Sarah", cat: "voyeur",
+                textBenni: `Ein Foto von ihrer Unterwäsche, die einfach mitten auf dem Küchenboden liegt. Text: "Rate mal, wo ich bin und was ich (nicht) anhabe."`,
+                textSarah: `Du wirfst deine Unterwäsche einfach auf den Küchenboden. Foto davon an ihn mit dem Text: "Rate mal, wo ich bin und was ich gerade (nicht) anhabe."`
+            },
+            {
+                id: "nx_56", role: "Sarah", cat: "action",
+                textBenni: `Ein kurzes Video: ${nameSarah} streichelt sich extrem langsam über den Bauch, fährt tiefer, bleibt exakt an der Kante ihrer Schamhaare stehen und grinst in die Kamera.`,
+                textSarah: `Du streichelst dich im Video langsam über den Bauch, gleitest tiefer, stoppst exakt an der Kante zu deiner Spalte und grinst ihn einfach nur provokant an.`
+            },
+            {
+                id: "nx_57", role: "Sarah", cat: "taboo",
+                textBenni: `Ein Foto von ${nameSarah}s Fingern, die leicht gespreizt sind. Zwischen den Fingern ziehen sich feine, feuchte Fäden aus Gleitgel oder ihrer eigenen Nässe.`,
+                textSarah: `Du spreizt deine Finger. Dazwischen ziehen sich feine, feuchte Fäden aus Gleitgel oder deiner eigenen Nässe. Das Foto beweist ihm, wie heiß du bist.`
+            },
+            {
+                id: "nx_58", role: "Sarah", cat: "dirty",
+                textBenni: `Du bist im Wohnzimmer, sie im Bad. Sie schickt ein Foto aus der Dusche. Man sieht nur ihre nassen Beine. Text: "Hol dir nasse Knie und leck mich sauber."`,
+                textSarah: `Er ist im Wohnzimmer. Foto von deinen nassen Beinen in der Dusche. Text: "Hol dir nasse Knie, komm rein und leck mich sauber."`
+            },
+            {
+                id: "nx_59", role: "Sarah", cat: "voyeur",
+                textBenni: `Du bist im Stau. Bild von ihr: Sie liegt nackt auf der Couch, die Beine an die Lehne gelehnt. Mitten im helllichten Tag, völlig ungeniert.`,
+                textSarah: `Er steht im Stau. Du liegst völlig nackt auf der Couch, die Beine hoch an die Lehne gelegt. Mitten am Tag, völlig ungeniert, nur für seine Augen.`
+            },
+            {
+                id: "nx_60", role: "Sarah", cat: "action",
+                textBenni: `Das finale Video: ${nameSarah} filmt ihr Gesicht. Sie atmet schwer, schließt die Augen und flüstert mit zitternder Stimme: "Bitte... ich brauche dich jetzt sofort."`,
+                textSarah: `Das finale Video: Du filmst dein Gesicht, atmest schwer, schließt die Augen und bettelst mit zitternder Stimme: "Bitte... ich brauche dich jetzt sofort in mir."`
             }
 
          ];
@@ -8757,10 +10095,220 @@
             { lvl: 3, timer: 0, who: "sarah", text: `${nameSarah} massiert ${nameBenni}s Nacken, während er sie leicht von hinten an der Taille hält.` },
             { lvl: 2, timer: 0, who: "benni", text: `${nameBenni} beißt ${nameSarah} sanft durch den Stoff ihres Shirts in die Schulter und küsst die Stelle danach ab.` },
             { lvl: 3, timer: 0, who: "both", text: `Ihr seid beide in Unterwäsche. Liegt Rücken an Rücken und spürt die Wärme des anderen.` },
-            { lvl: 2, timer: 0, who: "sarah", text: `${nameSarah} streichelt ${nameBenni}s Oberschenkel durch die Hose und bewegt ihre Hand immer näher an seinen Schritt.` }
+            { lvl: 2, timer: 0, who: "sarah", text: `${nameSarah} streichelt ${nameBenni}s Oberschenkel durch die Hose und bewegt ihre Hand immer näher an seinen Schritt.` },
+// ==========================================
+            // LIVE TASKS - DIGITALER VOYEURISMUS (Bilder & Videos senden)
+            // ==========================================
+            
+            // --- LEVEL 3: TEASING & HAUT (Der sanfte Einstieg) ---
+            { lvl: 3, timer: 60, who: "sarah", text: `Zeitdruck: ${nameSarah} hat genau 60 Sekunden Zeit, in einen anderen Raum zu gehen und ${nameBenni} ein Foto von ihrem Dekolleté zu schicken. Der BH darf noch an sein, aber die Perspektive muss heiß sein.` },
+            { lvl: 3, timer: 0, who: "sarah", text: `${nameSarah} schickt ${nameBenni} ein Foto von ihrem nackten Bauch und wie ihre Hand gerade den Rand ihres Slips leicht nach unten zieht.` },
+            { lvl: 3, timer: 120, who: "sarah", text: `${nameSarah} zieht sich ${nameBenni}s Lieblingshemd oder T-Shirt an. Nichts darunter. Sie schickt ihm ein Foto, auf dem das Hemd weit aufgeknöpft ist.` },
+            { lvl: 3, timer: 0, who: "sarah", text: `Der Blick: ${nameSarah} macht ein Selfie, auf dem sie extrem fordernd und schmutzig in die Kamera schaut, während sie sich leicht auf die Unterlippe beißt.` },
+            { lvl: 3, timer: 60, who: "benni", text: `${nameBenni} darf sich eine Körperstelle aussuchen (außer Genitalien). ${nameSarah} muss in den nächsten 60 Sekunden ein ästhetisches Nahaufnahme-Foto genau dieser Stelle senden.` },
+            { lvl: 3, timer: 0, who: "sarah", text: `${nameSarah} schickt ein kurzes 5-Sekunden-Video, in dem sie extrem langsam und lasziv den Reißverschluss ihrer Hose oder ihres Oberteils öffnet, ohne zu viel zu zeigen.` },
+            { lvl: 3, timer: 0, who: "sarah", text: `Das Slip-Foto: ${nameSarah} fotografiert nur ihre Beine und ihren Schritt im Slip. Sie spannt den Stoff mit zwei Fingern leicht, um die Konturen darunter zu betonen.` },
+            { lvl: 3, timer: 0, who: "sarah", text: `${nameSarah} schickt ${nameBenni} ein Foto von ihrem Rücken. Sie hat den BH-Verschluss bereits geöffnet, hält ihn aber vorne noch fest.` },
+            { lvl: 3, timer: 120, who: "sarah", text: `Boomerang: ${nameSarah} schickt einen kurzen Boomerang-Clip (oder 2-Sekunden-Video), wie sie ihre nackten Schultern räkelt und ihm einen Kuss zuwirft.` },
+            { lvl: 3, timer: 0, who: "sarah", text: `Wet Lips: ${nameSarah} macht ihre Lippen extrem nass (Spucke oder Eiswürfel) und schickt ${nameBenni} ein absolutes Close-Up nur von ihrem feuchten Mund.` },
+
+            // --- LEVEL 4: TOPLESS & BERÜHRUNGEN (Es wird freizügiger) ---
+            { lvl: 4, timer: 0, who: "sarah", text: `Spiegel-Selfie: ${nameSarah} stellt sich oben ohne vor den Spiegel. Sie bedeckt ihre Brustwarzen nur mit den Händen und schickt ${nameBenni} das Bild.` },
+            { lvl: 4, timer: 60, who: "sarah", text: `Der Strip: ${nameSarah} schickt ein 10-Sekunden-Video, in dem sie sich langsam und provokant ihr Oberteil über den Kopf zieht und das Video exakt stoppt, wenn ihre Brüste frei sind.` },
+            { lvl: 4, timer: 0, who: "sarah", text: `Brust-Fokus: ${nameSarah} schickt ein Foto nur von ihren nackten Brüsten von oben herab fotografiert (POV). Keine Hände, nur pure Haut.` },
+            { lvl: 4, timer: 0, who: "benni", text: `${nameBenni} wählt: Links oder rechts? ${nameSarah} muss ihre Kleidung so zur Seite schieben, dass nur die gewählte Brust komplett nackt zu sehen ist, und ein Foto senden.` },
+            { lvl: 4, timer: 120, who: "sarah", text: `Das Knet-Video: ${nameSarah} filmt sich für 15 Sekunden dabei, wie sie ihre eigenen nackten Brüste fest mit Öl massiert und die Brustwarzen hart knetet.` },
+            { lvl: 4, timer: 0, who: "sarah", text: `Unter der Dusche: ${nameSarah} stellt sich kurz unter die Dusche (oder macht sich nass). Sie schickt ein Foto von ihrem nassen Dekolleté, an dem die Wassertropfen herunterperlen.` },
+            { lvl: 4, timer: 0, who: "sarah", text: `${nameSarah} legt sich auf den Rücken und fotografiert ihren Körper von unten (Füße im Vordergrund, nackter Oberkörper im Hintergrund).` },
+            { lvl: 4, timer: 0, who: "sarah", text: `Der Abdruck: ${nameSarah} drückt ihre nackten Brüste gegen eine Glasscheibe (Fenster/Spiegel) oder Duschwand und macht davon ein kreatives Foto.` },
+            { lvl: 4, timer: 60, who: "sarah", text: `Tease-Video: ${nameSarah} streichelt sich im Video für 20 Sekunden über den ganzen Körper, aber sie darf ihre Genitalien absolut nicht berühren.` },
+            { lvl: 4, timer: 0, who: "sarah", text: `${nameSarah} schickt ein Foto von ihrem Po. Sie trägt nur einen String (oder schiebt den normalen Slip tief in die Ritze) und streckt ihr Becken provokant nach hinten.` },
+            
+            // --- LEVEL 5: FULL NUDE & ACTION (Nackt und deutlich) ---
+            { lvl: 5, timer: 0, who: "sarah", text: `Full Frontal: ${nameSarah} legt sich komplett nackt aufs Bett. Sie macht ein Foto von oben, auf dem ihr gesamter nackter Körper, inklusive ihrer Mitte, gestochen scharf zu sehen ist.` },
+            { lvl: 5, timer: 180, who: "sarah", text: `Die Spreizung: ${nameSarah} legt ihr Handy auf den Boden. Sie stellt sich darüber, grätscht die Beine leicht und macht ein Foto von unten direkt auf ihre nasse Spalte.` },
+            { lvl: 5, timer: 0, who: "sarah", text: `Spiegel-Voyeur: ${nameSarah} hockt sich nackt vor den großen Spiegel, spreizt die Beine und schickt ${nameBenni} das Spiegelbild ihrer Mitte.` },
+            { lvl: 5, timer: 120, who: "sarah", text: `Das Beweis-Foto: ${nameSarah} berührt sich selbst, bis sie feucht ist. Sie schickt ${nameBenni} ein gestochen scharfes Foto von ihren glänzenden, nassen Fingern.` },
+            { lvl: 5, timer: 0, who: "sarah", text: `Kamera-Masturbation: ${nameSarah} stellt das Handy auf und filmt sich für 30 Sekunden dabei, wie sie sich intensiv die Klitoris reibt. Sie muss stumm bleiben und in die Linse schauen.` },
+            { lvl: 5, timer: 0, who: "sarah", text: `Der geöffnete Blick: ${nameSarah} macht ein Close-Up-Foto, auf dem sie ihre Schamlippen mit zwei Fingern weit auseinanderzieht, um ${nameBenni} einen perfekten Blick ins Innere zu geben.` },
+            { lvl: 5, timer: 0, who: "benni", text: `Befehl von ${nameBenni}: Er schickt ihr eine WhatsApp-Nachricht mit genau 3 Posen. ${nameSarah} muss diese Posen komplett nackt nachstellen und ihm die Fotos liefern.` },
+            { lvl: 5, timer: 60, who: "sarah", text: `${nameSarah} filmt sich von hinten. Sie beugt sich über das Bett, schaut über die Schulter provokant in die Kamera und streicht langsam über ihren nackten Po.` },
+            { lvl: 5, timer: 0, who: "sarah", text: `Slip-Entzug: ${nameSarah} schickt ein 10-Sekunden-Video, in dem sie ihren Slip extrem langsam über die Oberschenkel nach unten abstreift und dann das Video beendet.` },
+            { lvl: 5, timer: 0, who: "sarah", text: `${nameSarah} macht ihre Haut an Brüsten und Bauch mit etwas Öl extrem glänzend und schickt ein ästhetisches, aber unfassbar heißes Aktfoto im Halbdunkel.` },
+
+            // --- LEVEL 6: EXPLICIT & TOYS (Hardcore Kamera-Spiel) ---
+            { lvl: 6, timer: 0, who: "sarah", text: `Penetrations-Beweis: ${nameSarah} schickt ein Video (15 Sekunden), in dem sie sich zwei geölte Finger tief in ihre Vagina schiebt und langsam rein und raus bewegt.` },
+            { lvl: 6, timer: 180, who: "sarah", text: `Toy-Show: ${nameSarah} schaltet ihren Vibrator an. Sie filmt, wie sie ihn fest an ihre Klitoris drückt und ihre Beine vor Lust zittern.` },
+            { lvl: 6, timer: 0, who: "sarah", text: `Das Anal-Foto: ${nameSarah} legt sich auf den Rücken, zieht die Knie an die Brust und fotografiert von unten direkt auf ihren Anus und ihre Vagina.` },
+            { lvl: 6, timer: 0, who: "sarah", text: `Orgasmus auf Band: ${nameSarah} MUSS sich auf Kamera zum Höhepunkt bringen. Sie filmt ihr Gesicht und ihren Oberkörper in den Sekunden, in denen sie kommt, und schickt es ${nameBenni}.` },
+            { lvl: 6, timer: 0, who: "benni", text: `Markierung: ${nameBenni} holt einen Lippenstift (oder Kuli). ${nameSarah} muss sich nackt hinstellen, während er seinen Namen auf ihren Bauch schreibt. Davon macht sie ein Foto.` },
+            { lvl: 6, timer: 0, who: "sarah", text: `Der Dildo: Wenn ein Toy vorhanden ist, schickt ${nameSarah} ein Video, in dem sie den Dildo langsam aufnimmt und in die Kamera stöhnt, als wäre es ${nameBenni}.` },
+            { lvl: 6, timer: 0, who: "sarah", text: `Spucke: ${nameSarah} spuckt in einem Video provozierend dick auf ihre eigenen Finger, verreibt es und gleitet dann direkt vor der Kamera in sich hinein.` },
+            { lvl: 6, timer: 120, who: "sarah", text: `Edging-Clip: ${nameSarah} filmt sich, wie sie sich brutal hart rubbelt, kurz vor dem Höhepunkt eiskalt abstoppt und völlig verzweifelt in die Kamera schaut.` },
+            { lvl: 6, timer: 0, who: "sarah", text: `Der tiefe Blick: ${nameSarah} legt das Handy mit eingeschalteter Kamera unters Bett / auf den Boden. Sie hockt sich im tiefen Squat direkt darüber und filmt ihre Mitte aus nächster Nähe.` },
+            { lvl: 6, timer: 0, who: "sarah", text: `Die Nachwehen: Direkt nach einem Orgasmus macht ${nameSarah} ein Foto von ihrer unordentlichen Spalte, an der ihre Säfte herunterlaufen, und schickt das ultimative Beweisfoto.` },
+
+            // --- AUDIO, DIRTY TALK & KREATIVES (Level 4-6 Mix) ---
+            { lvl: 4, timer: 0, who: "sarah", text: `Audio-Befehl: ${nameSarah} schickt keine Bilder, sondern eine Sprachnachricht. Sie muss ${nameBenni} genau ins Mikrofon stöhnen und ihm sagen, wie feucht sie gerade ist.` },
+            { lvl: 5, timer: 0, who: "sarah", text: `Blickwinkel wechseln: ${nameSarah} befestigt ihr Handy irgendwie an der Wand/Schrank. Sie filmt sich komplett nackt beim langsamen, lasziven Tanzen oder Räkeln auf dem Bett.` },
+            { lvl: 4, timer: 60, who: "sarah", text: `Eiswürfel-Spiel: ${nameSarah} schickt ein Video, wie sie einen Eiswürfel langsam über ihren Hals, ihr Dekolleté und ihre Brustwarzen gleiten lässt.` },
+            { lvl: 5, timer: 0, who: "sarah", text: `Dirty Voice: ${nameSarah} schickt ein Foto von sich nackt im Bett. Dazu eine Sprachnachricht: "Komm her und fick mich."` },
+            { lvl: 6, timer: 0, who: "sarah", text: `Der Plug-Beweis: ${nameSarah} schiebt sich einen kleinen Anal-Plug ein. Sie macht ein Close-Up-Foto von hinten, um ${nameBenni} zu beweisen, dass er sitzt.` },
+            { lvl: 4, timer: 0, who: "sarah", text: `${nameSarah} liegt auf dem Bauch. Sie schiebt die Kamera unter ihre Decke und macht ein Foto im dunklen "Kokon", beleuchtet nur durch den Handy-Blitz.` },
+            { lvl: 5, timer: 0, who: "sarah", text: `Der Tropfen: ${nameSarah} ist so feucht, dass sie einen Tropfen ihrer eigenen Säfte auf ihre Lippen schmiert und ein extrem schmutziges Selfie davon schickt.` },
+            { lvl: 6, timer: 0, who: "benni", text: `Live-Regie: Startet einen 2-minütigen Video-Anruf. ${nameBenni} dirigiert ${nameSarah}s Hände per Live-Anweisung über ihren nackten Körper.` },
+            { lvl: 4, timer: 0, who: "sarah", text: `Schatten-Spiel: ${nameSarah} macht das Licht fast komplett aus. Sie schickt ein Foto, auf dem nur ihre nackte Silhouette durch schwaches Licht im Hintergrund zu erkennen ist.` },
+            { lvl: 5, timer: 0, who: "sarah", text: `${nameSarah} steckt sich zwei Finger in den Mund, saugt lasziv daran, nimmt sie nass heraus und schickt genau in diesem Moment das Selfie.` },
+
+            // --- WEITERE KICKS & VOYEURISMUS ---
+            { lvl: 3, timer: 0, who: "sarah", text: `Der Ausschnitt: ${nameSarah} beugt sich tief nach vorne, das Handy liegt auf dem Boden. Ein Selfie, das fast ausschließlich aus ihrem Dekolleté besteht.` },
+            { lvl: 5, timer: 0, who: "sarah", text: `Hintern-Klatschen: ${nameSarah} filmt ihren nackten Po. Sie gibt sich selbst einen lauten, roten Klaps auf die Backe, sodass es auf dem Video ordentlich wackelt.` },
+            { lvl: 6, timer: 120, who: "sarah", text: `Die Spreizung extrem: ${nameSarah} liegt auf dem Rücken, zieht beide Knie neben die Ohren und fotografiert ihre völlig entblößte Mitte bei grellem Licht.` },
+            { lvl: 4, timer: 0, who: "sarah", text: `${nameSarah} schickt ein Foto ihrer Brüste, drückt diese aber mit beiden Händen so extrem zusammen, dass ein unfassbar tiefer Ausschnitt entsteht.` },
+            { lvl: 5, timer: 0, who: "sarah", text: `Die Zunge: ${nameSarah} macht ein Selfie, auf dem sie ihre Zunge so weit wie möglich herausstreckt und leicht zur Seite knickt, während sie sich befriedigt.` },
+            { lvl: 6, timer: 0, who: "sarah", text: `Kamera-Queening: ${nameSarah} stellt das Handy auf den Boden und setzt sich im Video langsam genau über die Linse, bis das Bild dunkel wird.` },
+            { lvl: 4, timer: 0, who: "sarah", text: `Der Slip im Mund: ${nameSarah} hat sich den Slip ausgezogen. Sie schickt ein Selfie, auf dem sie provokant auf dem Stoff ihres eigenen Slips herumkaut.` },
+            { lvl: 5, timer: 0, who: "sarah", text: `${nameSarah} steht nackt, stützt sich mit den Händen auf den Knien ab und schaut zwischen ihren eigenen Beinen hindurch nach hinten in die Kamera.` },
+            { lvl: 6, timer: 0, who: "sarah", text: `Der Toy-Insert: ${nameSarah} filmt in Slow-Motion, wie der dicke Kopf ihres Vibrators oder Dildos ihre nassen Schamlippen teilt und langsam eindringt.` },
+            { lvl: 5, timer: 0, who: "sarah", text: `Nasses Finale: ${nameSarah} leckt sich über den Handrücken, reibt ihre nasse Mitte und schickt ein Bild von ihrer Hand, die im Blitzlicht vor Feuchtigkeit glänzt.` },
+// ==========================================
+            // LIVE TASKS - OUTDOOR, ENDURANCE & MIND GAMES
+            // ==========================================
+            
+            // --- BALKON & NERVENKITZEL ---
+            { lvl: 4, timer: 120, who: "both", text: `Zieht euch nur das Nötigste über und geht nach draußen auf den Balkon. Steht für 2 Minuten extrem eng aneinandergepresst an der Brüstung. ${nameBenni} streichelt ${nameSarah} heimlich, während ihr so tut, als würdet ihr nur die Aussicht genießen.` },
+            { lvl: 5, timer: 0, who: "benni", text: `In der kühlen Nachtluft: ${nameBenni} drückt ${nameSarah} draußen auf dem schmalen Balkon gegen die Hauswand. Er zieht ihren Slip zur Seite und nimmt sie im Stehen, während beide absolut lautlos bleiben müssen.` },
+            { lvl: 3, timer: 60, who: "sarah", text: `${nameSarah} kniet sich auf dem Balkon hin, verdeckt durch das Geländer. ${nameBenni} bleibt völlig normal stehen und schaut in die Ferne, während sie ihm für 60 Sekunden heimlich durch den Reißverschluss hilft.` },
+            { lvl: 6, timer: 0, who: "both", text: `Draußen im Dunkeln: Geht auf den Balkon. ${nameSarah} beugt sich über den Tisch oder Stuhl. ${nameBenni} nimmt sie hart von hinten. Das Adrenalin, dass ein Nachbar das leise Klatschen hören könnte, ist euer Treibstoff.` },
+            { lvl: 4, timer: 0, who: "benni", text: `${nameBenni} führt ${nameSarah} nachts auf den Balkon. Er verbindet ihr die Augen und nutzt den starken Temperaturunterschied zwischen der kalten Luft und seiner heißen Zunge an ihrem Hals und Dekolleté.` },
+
+            // --- ENDURANCE & FITNESS-STRAFEN ---
+            { lvl: 5, timer: 60, who: "benni", text: `Die Muskel-Folter: ${nameBenni} muss sich für 60 Sekunden im Wandsitz (Wall Sit) an die Wand lehnen. ${nameSarah} setzt sich rittlings auf seinen Schoß und reitet ihn. Er darf nicht einknicken.` },
+            { lvl: 4, timer: 60, who: "sarah", text: `Ausdauer-Test: ${nameBenni} legt sich auf den Rücken. ${nameSarah} geht über ihm in die Plank-Position (Unterarmstütz). Er leckt sie von unten, aber sie darf nicht zusammenbrechen, solange der Timer läuft.` },
+            { lvl: 6, timer: 0, who: "benni", text: `Kraft und Kontrolle: ${nameBenni} hebt ${nameSarah} hoch und presst sie im Stehen an die Wand. Er muss sie aus reiner Kraft oben halten und sie in dieser schwebenden Position zum Höhepunkt vögeln.` },
+            { lvl: 5, timer: 120, who: "sarah", text: `Brennen: ${nameSarah} muss für 2 Minuten in einer extrem tiefen Kniebeugen-Position (Squat) über ${nameBenni}s Gesicht verharren. Sie darf sich nicht auf ihm abstützen, während er sie leckt.` },
+            { lvl: 4, timer: 0, who: "benni", text: `Liegestütz-Bestrafung: ${nameBenni} macht Liegestütze über ${nameSarah}. Jedes Mal, wenn er sich absenkt, darf er sie kurz küssen. Wenn er keine Kraft mehr hat, ist die Runde für ihn vorbei.` },
+
+            // --- MENTALE DOMINANZ & ISOLATION ---
+            { lvl: 3, timer: 180, who: "both", text: `Absolute Stille: Ihr dürft für 3 Minuten kein einziges Wort sprechen. Jede Kommunikation, jeder Wunsch und jeder Befehl darf nur per WhatsApp/Nachricht auf eure Handys geschrieben werden, während ihr nebeneinander sitzt.` },
+            { lvl: 4, timer: 0, who: "sarah", text: `${nameSarah} setzt sich Kopfhörer auf (mit Noise Cancelling oder lauter Musik). Sie kann absolut nichts hören. ${nameBenni} nutzt ihre akustische Wehrlosigkeit aus und verwöhnt sie von hinten.` },
+            { lvl: 5, timer: 0, who: "sarah", text: `Der stumme Befehl: ${nameSarah} schaut ${nameBenni} nur an und tippt auf ihr Handy. Er liest die Nachricht: "Knie dich hin und mach mich feucht." Er muss sofort gehorchen, ohne ein Wort.` },
+            { lvl: 6, timer: 0, who: "benni", text: `Sichtentzug & Fixierung: ${nameBenni} verbindet ${nameSarah} die Augen und bindet ihre Hände leicht mit einem Gürtel oder Shirt zusammen. Er flüstert ihr detailliert ins Ohr, was er jetzt mit ihr machen wird.` },
+            { lvl: 3, timer: 0, who: "both", text: `Fremde an der Bar: Tut so, als würdet ihr euch nicht kennen. Setzt euch an entgegengesetzte Enden des Raumes. Schreibt euch Nachrichten, wie ihr den anderen verführen würdet.` },
+
+            // --- TEMPERATURE PLAY & SENSORY SHOCK ---
+            { lvl: 4, timer: 0, who: "benni", text: `Temperatur-Schock: ${nameBenni} nimmt einen heißen Schluck Tee/Kaffee und küsst ${nameSarah} intensiv. Direkt danach fährt er mit einem Eiswürfel über exakt dieselbe Stelle an ihrem Hals.` },
+            { lvl: 5, timer: 0, who: "sarah", text: `${nameSarah} lutscht intensiv an einem Eiswürfel. Mit diesem eiskalten Mund nimmt sie ${nameBenni}s heißen Schaft tief in sich auf. Der Kontrast macht ihn steinhart.` },
+            { lvl: 4, timer: 120, who: "benni", text: `${nameBenni} erhitzt Massageöl so warm wie möglich (angenehm, nicht verbrennend). Er tropft es für 2 Minuten extrem langsam auf ${nameSarah}s Rücken und verstreicht die Hitze.` },
+
+            // --- APPS, SPIEGEL & VOYEURISMUS ---
+            { lvl: 5, timer: 0, who: "both", text: `Der Kameramann: ${nameBenni} sitzt im Sessel. ${nameSarah} befriedigt sich auf dem Bett selbst. Sie müssen sich über einen Video-Anruf (Facetime/WhatsApp) anschauen, obwohl sie im selben Raum sind.` },
+            { lvl: 6, timer: 0, who: "sarah", text: `Spiegel-Zwang: ${nameSarah} setzt sich auf ${nameBenni}s Gesicht. Sie hat einen Handspiegel in der Hand und beobachtet fasziniert ihre eigene Mitte und seine Zunge aus nächster Nähe.` },
+            { lvl: 4, timer: 0, who: "benni", text: `Fotobeweis: ${nameBenni} zieht ${nameSarah} das Oberteil aus. Er macht mit seinem Handy ein Foto von ihren Brüsten im perfekten Licht und stellt es für den heutigen Abend als seinen Sperrbildschirm ein.` },
+
+            // --- DER ALLTAG ALS KULISSE ---
+            { lvl: 4, timer: 0, who: "sarah", text: `Während ${nameBenni} abwäscht, kocht oder etwas Banales tut, kniet sich ${nameSarah} einfach lautlos neben ihn und öffnet seine Hose. Er muss versuchen, seine Tätigkeit normal fortzusetzen.` },
+            { lvl: 5, timer: 0, who: "benni", text: `Der Wäschekorb: ${nameBenni} drückt ${nameSarah} im Badezimmer über die Waschmaschine oder den Wäschekorb. Ein schneller, harter Fick im alltäglichsten Raum der Wohnung.` },
+            { lvl: 3, timer: 60, who: "sarah", text: `${nameSarah} trägt eine Schürze oder ein weites Hemd von ${nameBenni} – und darunter absolut gar nichts. Sie präsentiert sich ihm für 60 Sekunden so in der Wohnung.` },
+            
+            // --- HARTE KONTROLLE & DEGRADATION (Level 6) ---
+            { lvl: 6, timer: 0, who: "sarah", text: `${nameSarah} sitzt auf ${nameBenni}s Brust. Er darf sich nicht bewegen. Sie spuckt ihm leicht auf die Brust und zwingt ihn, zuzusehen, wie sie seine Brustwarzen quält.` },
+            { lvl: 6, timer: 0, who: "benni", text: `Orgasmus-Kontrolle: ${nameBenni} bringt ${nameSarah} an den Rand. Er hält sie genau dort, drückt ihr Becken ins Bett und sagt: "Du kommst erst, wenn du mir sagst, dass du mein bist."` },
+            { lvl: 6, timer: 0, who: "sarah", text: `Das Möbelstück: ${nameBenni} muss sich auf allen Vieren auf den Boden stellen. ${nameSarah} setzt sich wie auf einen Stuhl auf seinen Rücken und befriedigt sich selbst, während er ihr Gewicht trägt.` },
+            
+            // --- DIE LETZTEN 3 GEMISCHTEN KICKS ---
+            { lvl: 4, timer: 0, who: "benni", text: `${nameBenni} fährt mit den Zähnen ganz leicht und kratzend über ${nameSarah}s Schulterblätter und ihren Nacken, ohne auch nur einmal die Haut zu verletzen.` },
+            { lvl: 5, timer: 0, who: "sarah", text: `${nameSarah} reitet ${nameBenni}. Sie hält seine Hände fest auf ihre Hüften gepresst und zwingt ihn, ihre Bewegungen exakt zu spiegeln. Er ist ihr Motor.` },
+            { lvl: 6, timer: 0, who: "benni", text: `${nameBenni} nimmt ${nameSarah} von hinten. Er greift mit einer Hand um sie herum, legt zwei Finger flach auf ihre Lippen und zwingt sie, sie während des gesamten Akts im Mund zu behalten.` }
+
             
         ];
+// ==========================================
+        // SILENT CHECK-IN LOGIK
+        // ==========================================
+        
+        // Die 6 Stufen deines Reglers
+        const vibeLevels = [
+            { text: "Heute geht gar nichts 🛑", color: "#a1a1aa" },        // 0: Grau / Neutral
+            { text: "Du kannst es versuchen 😏", color: "#60a5fa" },      // 1: Blau / Offen
+            { text: "Ich will, dass du es mir machst 🫠", color: "#c084fc" }, // 2: Lila / Passiv empfangend
+            { text: "Ich will es dir machen 😈", color: "#f472b6" },      // 3: Pink / Aktiv gebend
+            { text: "Fick mich 🥵", color: "#e11d48" },                   // 4: Rot / Sehr fordernd
+            { text: "Ich will es hart 💥", color: "#9f1239" }             // 5: Dunkelrot / Extrem
+        ];
 
+        // Aktualisiert die Anzeige, wenn der Regler geschoben wird
+        function updateVibeSlider() {
+            const slider = document.getElementById("vibe-slider");
+            const display = document.getElementById("vibe-text");
+            const val = parseInt(slider.value);
+
+            // Ändert Text und Farbe basierend auf der Auswahl
+            display.innerText = vibeLevels[val].text;
+            display.style.color = vibeLevels[val].color;
+        }
+
+        // Speichert den Vibe-Status in Firebase
+        function saveVibeCheckIn() {
+            const slider = document.getElementById("vibe-slider");
+            const val = parseInt(slider.value);
+            const statusText = vibeLevels[val].text;
+
+            // Sichere Firebase-Struktur aufbauen
+            if (!appState.checkins) appState.checkins = {};
+            if (!appState.checkins[currentPartner]) appState.checkins[currentPartner] = {};
+
+            // Vibe speichern
+            appState.checkins[currentPartner].vibeValue = val;
+            appState.checkins[currentPartner].vibeText = statusText;
+            appState.checkins[currentPartner].timestamp = Date.now();
+
+            saveState(); // Deine bestehende Funktion zum Senden an Firebase
+            
+            showToast("Vibe lautlos geupdatet! 🤫");
+        }
+// ==========================================
+        // VIBE DES PARTNERS AUSLESEN UND ANZEIGEN
+        // ==========================================
+        function updatePartnerVibeDisplay() {
+            // Finde heraus, wer der Partner ist
+            const partnerRole = currentPartner === 'benni' ? 'sarah' : 'benni';
+            const partnerName = currentPartner === 'benni' ? nameSarah : nameBenni;
+            
+            const banner = document.getElementById('partner-vibe-banner');
+            const nameDisplay = document.getElementById('partner-name-display');
+            const textDisplay = document.getElementById('partner-vibe-text');
+            const timeDisplay = document.getElementById('partner-vibe-time');
+
+            // Prüfe, ob es in Firebase Check-Ins gibt und ob der Partner einen hat
+            if (appState.checkins && appState.checkins[partnerRole]) {
+                const partnerVibe = appState.checkins[partnerRole];
+                
+                // Banner sichtbar machen
+                banner.style.display = 'block';
+                
+                // Namen und Vibe-Text setzen
+                nameDisplay.innerText = partnerName;
+                textDisplay.innerText = partnerVibe.vibeText;
+                
+                // Farbe passend zum Level setzen
+                textDisplay.style.color = vibeLevels[partnerVibe.vibeValue].color;
+
+                // Optional: Zeitstempel formatieren (Wie lange ist das her?)
+                if (partnerVibe.timestamp) {
+                    const minutesAgo = Math.floor((Date.now() - partnerVibe.timestamp) / 60000);
+                    if (minutesAgo < 5) timeDisplay.innerText = "Gerade eben geupdatet";
+                    else if (minutesAgo < 60) timeDisplay.innerText = `Vor ${minutesAgo} Minuten`;
+                    else {
+                        const hours = Math.floor(minutesAgo / 60);
+                        timeDisplay.innerText = `Vor ${hours} Stunde(n)`;
+                    }
+                }
+            } else {
+                // Wenn kein Vibe da ist, Banner verstecken
+                banner.style.display = 'none';
+            }
+        }
         // ==========================================
         // FIREBASE & APP STATE
         // ==========================================
@@ -8788,15 +10336,19 @@
             customQuestions: []
         };
 
+        // ==========================================
+        // INITIALISIERUNG & FIREBASE LISTENER
+        // ==========================================
         function initApp() {
             const savedRole = localStorage.getItem('spicy_partner');
             if (savedRole === 'sarah') { currentPartner = 'sarah'; } else { currentPartner = 'benni'; }
 
             applyRoleStyling();
 
-            // Firebase Listener auf 'puls_live_data' (Offene Regeln nutzen!)
+            // EINZIGER Firebase Listener auf 'puls_live_data'
             database.ref('puls_live_data').on('value', (snapshot) => {
                 const data = snapshot.val();
+                
                 if (data) {
                     appState = { ...appState, ...data };
                     if (!appState.answers) appState.answers = {};
@@ -8804,9 +10356,16 @@
                     saveState();
                 }
 
+                // --- UI UPDATES ---
                 updateProgressBar();
                 renderMatchesLists();
                 
+                // Vibe-Banner aktualisieren (falls Funktion vorhanden)
+                if (typeof updatePartnerVibeDisplay === "function") {
+                    updatePartnerVibeDisplay(); 
+                }
+                
+                // Neue Karte laden, falls der Ladebildschirm noch aktiv ist
                 const cMain = document.getElementById('card-text-display');
                 if (cMain && (cMain.innerText.includes("Verbindung") || cMain.innerText.includes("Lade"))) {
                     getNewSwipeCard();
@@ -8814,46 +10373,74 @@
             });
         }
 
+        // ==========================================
+        // STATUS SPEICHERN
+        // ==========================================
         function saveState() {
             database.ref('puls_live_data').set(appState).catch(e => console.error("Firebase Error:", e));
         }
 
-        // Auto-Heilung & Pool Generierung inkl. Custom Questions
-function getCombinedQuestionPool() {
+        // ==========================================
+        // POOL GENERIEREN & REIHENFOLGE SYNCHRONISIEREN
+        // ==========================================
+        function getCombinedQuestionPool() {
+            // 1. Custom Questions sicher auslesen
+            let customQ = Array.isArray(appState.customQuestions)
+                ? appState.customQuestions
+                : Object.values(appState.customQuestions || {});
 
-    let customQ = Array.isArray(appState.customQuestions)
-        ? appState.customQuestions
-        : Object.values(appState.customQuestions || {});
+            // 2. Standard-Pool und Custom-Pool zusammenführen
+            const pool = [...swipePool, ...customQ];
 
-    const pool = [...swipePool, ...customQ];
+            // 3. IDs vergeben, falls eine Karte noch keine hat
+            pool.forEach((q, index) => {
+                if (!q.id) q.id = "auto_" + index;
+            });
 
-    // IDs vergeben falls nötig
-    pool.forEach((q, index) => {
-        if (!q.id) q.id = "auto_" + index;
-    });
+            let changed = false;
 
-    // ------------------------------------
-    // Reihenfolge existiert noch nicht?
-    // Dann einmal mischen
-    // ------------------------------------
+            // 4. Reihenfolge existiert noch gar nicht? -> Einmal komplett mischen
+            if (!appState.shuffledOrder || appState.shuffledOrder.length === 0) {
+                let ids = pool.map(q => q.id);
 
-    if (!appState.shuffledOrder || appState.shuffledOrder.length === 0) {
+                // Fisher-Yates Shuffle
+                for (let i = ids.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [ids[i], ids[j]] = [ids[j], ids[i]];
+                }
+                
+                appState.shuffledOrder = ids;
+                changed = true;
+            } else {
+                // 5. Reihenfolge existiert bereits: Prüfen, ob NEUE Karten dazugekommen sind
+                const existingIds = new Set(appState.shuffledOrder);
 
-        let ids = pool.map(q => q.id);
+                pool.forEach(q => {
+                    if (!existingIds.has(q.id)) {
+                        // Neue Karte gefunden -> an zufälliger Stelle in die bestehende Liste einfügen
+                        const pos = Math.floor(Math.random() * (appState.shuffledOrder.length + 1));
+                        appState.shuffledOrder.splice(pos, 0, q.id);
+                        existingIds.add(q.id);
+                        changed = true;
+                    }
+                });
+            }
 
-        // Fisher-Yates Shuffle
-        for (let i = ids.length - 1; i > 0; i--) {
+            // 6. Nur in Firebase speichern, wenn sich die Reihenfolge wirklich geändert hat (verhindert Endlosschleifen)
+            if (changed) {
+                saveState();
+            }
 
-            const j = Math.floor(Math.random() * (i + 1));
+            // 7. Den Pool anhand der synchronisierten Reihenfolge sortieren
+            const map = {};
+            appState.shuffledOrder.forEach((id, index) => {
+                map[id] = index;
+            });
 
-            [ids[i], ids[j]] = [ids[j], ids[i]];
+            pool.sort((a, b) => map[a.id] - map[b.id]);
 
+            return pool;
         }
-
-        appState.shuffledOrder = ids;
-
-        saveState();
-    }
 const existingIds = new Set(appState.shuffledOrder || []);
 
 let changed = false;
@@ -8906,6 +10493,7 @@ if (changed) {
             updateProgressBar();
             renderMatchesLists();
             showToast(`Rolle gewechselt zu: ${role.toUpperCase()}`);
+	updatePartnerVibeDisplay();	
         }
 
         function applyRoleStyling() {
