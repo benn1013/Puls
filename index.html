@@ -10380,7 +10380,7 @@
             database.ref('puls_live_data').set(appState).catch(e => console.error("Firebase Error:", e));
         }
 
-        // ==========================================
+// ==========================================
         // POOL GENERIEREN & REIHENFOLGE SYNCHRONISIEREN
         // ==========================================
         function getCombinedQuestionPool() {
@@ -10426,7 +10426,7 @@
                 });
             }
 
-            // 6. Nur in Firebase speichern, wenn sich die Reihenfolge wirklich geändert hat (verhindert Endlosschleifen)
+            // 6. Nur in Firebase speichern, wenn sich die Reihenfolge wirklich geändert hat
             if (changed) {
                 saveState();
             }
@@ -10441,41 +10441,6 @@
 
             return pool;
         }
-const existingIds = new Set(appState.shuffledOrder || []);
-
-let changed = false;
-
-pool.forEach(q => {
-
-    if (!existingIds.has(q.id)) {
-
-        const pos = Math.floor(Math.random() * (appState.shuffledOrder.length + 1));
-
-        appState.shuffledOrder.splice(pos, 0, q.id);
-
-        existingIds.add(q.id);
-
-        changed = true;
-    }
-
-});
-
-if (changed) {
-    saveState();
-}
-
-    // Reihenfolge anwenden
-
-    const map = {};
-
-    appState.shuffledOrder.forEach((id, index) => {
-        map[id] = index;
-    });
-
-    pool.sort((a, b) => map[a.id] - map[b.id]);
-
-    return pool;
-}
 
         function switchTab(viewId, btn) {
             document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
