@@ -3,6 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+	<!-- ==========================================
+         PWA & VOLLBILD (APP-MODUS)
+         ========================================== -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Puls">
+    <meta name="theme-color" content="#09090b">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- Mini-Manifest für Android (erzwingt den App-Modus) -->
+    <link rel="manifest" href='data:application/manifest+json,{"name":"Puls","short_name":"Puls","display":"standalone","background_color":"#09090b","theme_color":"#e11d48"}'>
     <title>Puls</title>
     <style>
         :root {
