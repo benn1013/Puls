@@ -277,14 +277,16 @@
         <section id="section-live" class="view-section">
             <div class="dashboard-box">
                 <div style="font-size:0.8rem; font-weight:800; color:var(--text-light); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px;">Intensitäts-Level filtern:</div>
-                <div class="level-grid">
+ <div class="level-grid">
                     <button class="level-btn active" data-lvl="1" onclick="toggleLevel(1)">Lvl 1<br><span style="font-size:0.6rem;font-weight:400;">Spark</span></button>
                     <button class="level-btn active" data-lvl="2" onclick="toggleLevel(2)">Lvl 2<br><span style="font-size:0.6rem;font-weight:400;">Tease</span></button>
                     <button class="level-btn active" data-lvl="3" onclick="toggleLevel(3)">Lvl 3<br><span style="font-size:0.6rem;font-weight:400;">Skin & Strip</span></button>
                     <button class="level-btn" data-lvl="4" onclick="toggleLevel(4)">Lvl 4<br><span style="font-size:0.6rem;font-weight:400;">Touch</span></button>
-                    <button class="level-btn" data-lvl="5" onclick="toggleLevel(5)">Lvl 5<br><span style="font-size:0.6rem;font-weight:400;">Action</span></button>
-                    <button class="level-btn" data-lvl="6" onclick="toggleLevel(6)">Lvl 6<br><span style="font-size:0.6rem;font-weight:400;">Extra</span></button>
-                    <button class="level-btn" data-lvl="7" onclick="toggleLevel(7)">Lvl 7<br><span style="font-size:0.6rem;font-weight:400;">Hardcore</span></button>
+                    <button class="level-btn" data-lvl="5" onclick="toggleLevel(5)">Lvl 5<br><span style="font-size:0.6rem;font-weight:400;">Control</span></button>
+                    <button class="level-btn" data-lvl="6" onclick="toggleLevel(6)">Lvl 6<br><span style="font-size:0.6rem;font-weight:400;">Action</span></button>
+                    <button class="level-btn" data-lvl="7" onclick="toggleLevel(7)">Lvl 7<br><span style="font-size:0.6rem;font-weight:400;">Toys</span></button>
+                    <button class="level-btn" data-lvl="8" onclick="toggleLevel(8)">Lvl 8<br><span style="font-size:0.6rem;font-weight:400;">Extra</span></button>
+                    <button class="level-btn" data-lvl="9" onclick="toggleLevel(9)">Lvl 9<br><span style="font-size:0.6rem;font-weight:400;">Hardcore</span></button>
                 </div>
             </div>
 
@@ -301,8 +303,7 @@
                 <button class="btn-block" style="background:#581c87; font-weight:800; margin-top:0;" onclick="drawLiveTask('sarah')">♀️ Sarahs Aufgabe</button>
             </div>
             
-            <button class="btn-block btn-primary" style="background:var(--accent-spicy);" onclick="drawLiveTask('verlierer')">🏆 Strafe für Verlierer (Lvl 5-7)</button>
-			<button class="btn-block btn-primary" style="background:var(--accent-spicy);" onclick="drawLiveTask('verlierer')">🏆 Strafe für Verlierer (Lvl 5-7)</button>
+            <button class="btn-block btn-primary" style="background:var(--accent-spicy);" onclick="drawLiveTask('verlierer')">🏆 Strafe für Verlierer (Lvl 5-9)</button>
             
             <div class="dashboard-box" style="margin-top: 24px; border-top: 1px solid #27272a; background: #09090b;">
                 <div style="font-size:0.8rem; font-weight:800; color:var(--text-light); margin-bottom:12px; text-transform:uppercase;">⏳ Manueller Timer & Runden</div>
@@ -1036,7 +1037,7 @@
             let prefix = "";
 
             if(target === 'verlierer') {
-                pool = liveTasks.filter(t => t.lvl >= 5 && t.lvl <= 7);
+                pool = liveTasks.filter(t => t.lvl >= 5 && t.lvl <= 9);
                 prefix = "⚠️ **STRAFAUFGABE FÜR DEN VERLIERER:**<br>";
             } else {
                 pool = liveTasks.filter(t => activeLevels.includes(t.lvl) && (t.who === target || t.who === 'both'));
