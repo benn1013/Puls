@@ -334,21 +334,24 @@
         }
 
         // Speichert den Vibe-Status in Firebase
-        function saveVibeCheckIn() {
+       function saveVibeCheckIn() {
             const slider = document.getElementById("vibe-slider");
             const val = parseInt(slider.value);
             const statusText = vibeLevels[val].text;
 
-            // Sichere Firebase-Struktur aufbauen
+            const vibeData = {
+                vibeValue: val,
+                vibeText: statusText,
+                timestamp: Date.now()
+            };
+
+            // 1. Lokalen State updaten
             if (!appState.checkins) appState.checkins = {};
-            if (!appState.checkins[currentPartner]) appState.checkins[currentPartner] = {};
+            appState.checkins[currentPartner] = vibeData;
 
-            // Vibe speichern
-            appState.checkins[currentPartner].vibeValue = val;
-            appState.checkins[currentPartner].vibeText = statusText;
-            appState.checkins[currentPartner].timestamp = Date.now();
-
-            saveState(); // Deine bestehende Funktion zum Senden an Firebase
+            // 2. FIREBASE UPDATE: Nur den Vibe dieses Partners aktualisieren
+            database.ref(`puls_live_data/checkins/${currentPartner}`).update(vibeData)
+                .catch(e => console.error("Firebase Update Fehler:", e));
             
             showToast("Vibe lautlos geupdatet! 🤫");
         }
@@ -458,13 +461,6 @@
             });
         }
 
-        // ==========================================
-        // STATUS SPEICHERN
-        // ==========================================
-        function saveState() {
-            database.ref('puls_live_data').set(appState).catch(e => console.error("Firebase Error:", e));
-        }
-
 // ==========================================
         // POOL GENERIEREN & REIHENFOLGE SYNCHRONISIEREN
         // ==========================================
@@ -511,9 +507,11 @@
                 });
             }
 
-            // 6. Nur in Firebase speichern, wenn sich die Reihenfolge wirklich geändert hat
+            /// Nur in Firebase speichern, wenn sich die Reihenfolge wirklich geändert hat
             if (changed) {
-                saveState();
+                database.ref('puls_live_data').update({
+                    shuffledOrder: appState.shuffledOrder
+                }).catch(e => console.error("Firebase Update Fehler:", e));
             }
 
             // 7. Den Pool anhand der synchronisierten Reihenfolge sortieren
@@ -589,25 +587,27 @@
             let newObj = { id: randId, cat: cat, textBenni: tB, textSarah: tS };
             
             let cQ = Array.isArray(appState.customQuestions) ? appState.customQuestions : Object.values(appState.customQuestions || {});
-cQ.push(newObj);
+            cQ.push(newObj);
 
-// shuffledOrder anlegen falls sie noch nicht existiert
-if (!appState.shuffledOrder) {
-    appState.shuffledOrder = [];
-}
+            if (!appState.shuffledOrder) appState.shuffledOrder = [];
+            const pos = Math.floor(Math.random() * (appState.shuffledOrder.length + 1));
+            appState.shuffledOrder.splice(pos, 0, randId);
 
-// Neue Karte zufällig in den Stapel einfügen
-const pos = Math.floor(Math.random() * (appState.shuffledOrder.length + 1));
-appState.shuffledOrder.splice(pos, 0, randId);
-
-appState.customQuestions = cQ;
+            appState.customQuestions = cQ;
             
-            // AUTO-VOTE: Wir loggen sofort ein "JA" für den Ersteller ein!
             if (!appState.answers) appState.answers = {};
             appState.answers[randId] = { benni: "", sarah: "" };
             appState.answers[randId][currentPartner] = "JA"; 
             
-            saveState(); 
+            // FIREBASE UPDATE: Alles sicher auf einmal in die Datenbank schießen
+            const updates = {};
+            updates['/customQuestions'] = appState.customQuestions;
+            updates['/shuffledOrder'] = appState.shuffledOrder;
+            updates[`/answers/${randId}/${currentPartner}`] = "JA";
+
+            database.ref('puls_live_data').update(updates)
+                .catch(e => console.error("Firebase Update Fehler:", e));
+            
             getNewSwipeCard();
             updateProgressBar();
             
@@ -678,13 +678,17 @@ appState.customQuestions = cQ;
                 
                 setTimeout(() => {
                     try {
+                        // 1. Lokalen State für sofortiges Feedback updaten
                         if (!appState.answers) appState.answers = {};
                         if (!appState.answers[qId] || typeof appState.answers[qId] !== 'object') {
                             appState.answers[qId] = { benni: "", sarah: "" };
                         }
-                        
                         appState.answers[qId][currentPartner] = vote; 
-                        saveState(); 
+                        
+                        // 2. FIREBASE UPDATE: Überschreibt nur exakt diesen einen Vote!
+                        database.ref(`puls_live_data/answers/${qId}`).update({
+                            [currentPartner]: vote
+                        }).catch(e => console.error("Firebase Update Fehler:", e));
                         
                         getNewSwipeCard(); 
                         updateProgressBar();
@@ -697,7 +701,6 @@ appState.customQuestions = cQ;
                 console.error("Fehler beim Swipe", err);
             }
         }
-
         // Matches Logik mit Sarah-Sonderregel
         function renderMatchesLists() {
             const hotList = document.getElementById('list-matches-hot');
