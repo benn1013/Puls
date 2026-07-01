@@ -1083,6 +1083,10 @@
         window.onload = () => {
             initApp();
         };
+		// PWA Service Worker laden
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
     </script>
 </body>
 </html>
