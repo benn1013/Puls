@@ -272,6 +272,16 @@
 
             <div class="result-title">💬 Reizvolles Kopfkino (Redebedarf)</div>
             <ul class="item-list match-talk" id="list-matches-talk"></ul>
+			<!-- NEU: Archiv-Bereich -->
+            <div class="dashboard-box" style="margin-top: 32px; border: 2px dashed #27272a; background: transparent;">
+                <div onclick="document.getElementById('archive-content').style.display = document.getElementById('archive-content').style.display === 'none' ? 'block' : 'none'" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-weight:800; color:var(--text-light); text-transform:uppercase; font-size:0.8rem;">📦 Archiviert <span id="archive-count">0</span></span>
+                    <span style="color:var(--text-light);">▼</span>
+                </div>
+                <div id="archive-content" style="display:none; margin-top:10px;">
+                    <ul class="item-list" id="list-matches-archive"></ul>
+                </div>
+            </div>
         </section>
 
         <section id="section-live" class="view-section">
@@ -337,22 +347,23 @@
                 </div>
             </div>
 
-            <div class="dashboard-box" style="border-left: 3px solid var(--accent-spicy);">
-                <div style="font-size:0.9rem; font-weight:800; color:var(--text-dark); margin-bottom:8px;">🌡️ Vibe Check-In</div>
-                <p style="font-size:0.75rem; color:var(--text-light); margin-bottom:12px; line-height: 1.4;">
-                    Setze deinen Status lautlos. Dein Partner sieht dein Vibe-Level oben im Bildschirm, ohne dass ihr darüber reden müsst.
-                </p>
+           <div class="dashboard-box" style="border-left: 3px solid var(--accent-spicy);">
+    <div style="font-size:0.9rem; font-weight:800; color:var(--text-dark); margin-bottom:8px;">🌡️ Vibe Check-In</div>
+    <p style="font-size:0.75rem; color:var(--text-light); margin-bottom:12px; line-height: 1.4;">
+        Setze deinen Status lautlos. Dein Partner sieht dein Vibe-Level oben im Bildschirm, ohne dass ihr darüber reden müsst.
+    </p>
 
-                <div class="slider-container">
-                    <div id="vibe-text" class="vibe-display" style="color: #a1a1aa;">
-                        Heute geht gar nichts 🛑
-                    </div>
-                    
-                    <input type="range" class="horny-slider" id="vibe-slider" min="0" max="5" value="0" step="1" oninput="updateVibeSlider()">
-                </div>
+    <div class="slider-container">
+        <div id="vibe-text" class="vibe-display" style="color: #a1a1aa;">
+            Heute geht gar nichts 🛑
+        </div>
+        <input type="range" class="horny-slider" id="vibe-slider" min="0" max="5" value="0" step="1" oninput="updateVibeSlider()">
+    </div>
 
-                <button class="btn-block" style="background:#27272a; border:1px solid var(--accent-spicy); color:var(--accent-spicy); margin-top: 10px;" onclick="saveVibeCheckIn()">Vibe heimlich senden 📡</button>
-            </div>
+    <button class="btn-block" style="background:#27272a; border:1px solid var(--accent-spicy); color:var(--accent-spicy); margin-top: 10px;" onclick="saveVibeCheckIn()">Vibe heimlich senden 📡</button>
+    
+    <button class="btn-block" style="background:transparent; border:1px solid var(--danger-color); color:var(--danger-color); margin-top: 10px; font-size: 0.8rem;" onclick="resetMyVibe()">Vibe zurücksetzen 🛑</button>
+</div>
 
             <div class="sync-panel-card">
                 <div style="font-size:0.9rem; font-weight:800; color: var(--success-color); margin-bottom: 8px;">☁️ Cloud Sync Aktiv</div>
@@ -938,25 +949,53 @@
                 showToast("Als Favorit markiert! ⭐");
             }
         }
+// Archiv-Status umschalten
+        function toggleArchiveStatus(qId) {
+            if (!appState.answers || !appState.answers[qId]) return;
+            
+            const isNowArchived = !appState.answers[qId].archived;
+            
+            // Firebase Update
+            database.ref(`puls_live_data/answers/${qId}`).update({
+                archived: isNowArchived ? true : null
+            }).catch(e => console.error("Archive Fehler:", e));
+            
+            // Lokalen State aktualisieren für sofortige UI-Reaktion
+            appState.answers[qId].archived = isNowArchived;
+            
+            showToast(isNowArchived ? "Archiviert 📦" : "Wiederhergestellt 🔄");
+            renderMatchesLists(); // Liste neu zeichnen
+        }
 
+        // Vibe komplett entfernen
+        function resetMyVibe() {
+            if(!confirm("Möchtest du deinen Vibe-Status wirklich löschen?")) return;
+            
+            database.ref(`puls_live_data/checkins/${currentPartner}`).remove()
+                .then(() => {
+                    showToast("Vibe gelöscht 🛑");
+                    // UI manuell updaten
+                    document.getElementById('partner-vibe-banner').style.display = 'none';
+                })
+                .catch(e => console.error("Reset Fehler:", e));
+        }
         // ==========================================
-        // MATCHES & FAVORITEN RENDER LOGIK
+      // ==========================================
+        // MATCHES & FAVORITEN RENDER LOGIK (MIT ARCHIV)
         // ==========================================
         function renderMatchesLists() {
             const favList = document.getElementById('list-matches-fav');
             const hotList = document.getElementById('list-matches-hot');
             const talkList = document.getElementById('list-matches-talk');
+            const archList = document.getElementById('list-matches-archive');
             
             if(favList) favList.innerHTML = '';
             if(hotList) hotList.innerHTML = '';
             if(talkList) talkList.innerHTML = '';
+            if(archList) archList.innerHTML = '';
 
-            let favCount = 0;
-            let hotCount = 0;
-            let talkCount = 0;
+            let favCount = 0, hotCount = 0, talkCount = 0, archCount = 0;
             const pool = getCombinedQuestionPool();
-
-            // Lade die Favoriten des aktuellen Nutzers
             const myFavs = (appState.favorites && appState.favorites[currentPartner]) ? appState.favorites[currentPartner] : {};
 
             pool.forEach(q => {
@@ -966,50 +1005,45 @@
                     let s = ans.sarah;
                     let cleanText = (currentPartner === 'benni' ? q.textBenni : q.textSarah).replace("Fantasie: ", "");
                     
-                    let isMatch = false;
-                    let matchType = '';
-                    let matchPrefix = '';
-
-                    // Match-Logik (inklusive Sarahs Sonderregel)
-                    if(b === 'JA' && s === 'JA') {
-                        isMatch = true; matchType = 'hot'; matchPrefix = '🔥 ';
-                    } 
-                    else if (s === 'VIELLEICHT') {
-                        isMatch = true; matchType = 'talk'; matchPrefix = '💬 <strong>[Sarah will reden]</strong><br>';
-                    }
-                    else if (b === 'VIELLEICHT' && s === 'JA') {
-                        isMatch = true; matchType = 'talk'; matchPrefix = '💬 <strong>[Benni will reden]</strong><br>';
+                    // ARCHIV-LOGIK: Wenn archiviert, direkt ins Archiv-UL und Funktion beenden
+                  if (ans.archived) {
+                        const li = document.createElement('li');
+                        // Hier ist der neue, angepasste Code mit dem größeren Button:
+                        li.innerHTML = `<span style="text-decoration:line-through; opacity:0.6;">${cleanText}</span> 
+                                        <button onclick="toggleArchiveStatus('${q.id}')" style="background:none; border:none; cursor:pointer; float:right; font-size: 1.5rem; margin-top: -5px;">🔄</button>`;
+                        if(archList) archList.appendChild(li);
+                        archCount++;
+                        return;
                     }
 
+                    // MATCH-LOGIK
+                    let isMatch = (b === 'JA' && s === 'JA') || (b === 'VIELLEICHT' || s === 'VIELLEICHT');
                     if (isMatch) {
                         const isFav = myFavs[q.id];
                         const li = document.createElement('li');
                         
-                        // Der Stern-Button (gefüllt oder leer)
-                        const starBtn = `<span onclick="toggleFavorite('${q.id}')" style="cursor:pointer; float:right; font-size:1.5rem; padding-left:15px; margin-top:-2px;">${isFav ? '⭐' : '☆'}</span>`;
+                        const starBtn = `<span onclick="toggleFavorite('${q.id}')" style="cursor:pointer; float:right; font-size:1.2rem;">${isFav ? '⭐' : '☆'}</span>`;
+                        const archBtn = `<span onclick="toggleArchiveStatus('${q.id}')" style="cursor:pointer; float:right; margin-right:15px; font-size:1.2rem;">📦</span>`;
                         
-                        li.innerHTML = `${matchPrefix}${cleanText} ${starBtn}`;
+                        li.innerHTML = `${cleanText} ${starBtn}${archBtn}`;
 
-                        // Karte in die richtige Liste einsortieren
-                        if (isFav) {
+                        if (isFav) { 
                             li.style.borderLeftColor = 'var(--accent-spicy)';
-                            if(favList) favList.appendChild(li);
-                            favCount++;
-                        } else if (matchType === 'hot') {
-                            if(hotList) hotList.appendChild(li);
-                            hotCount++;
-                        } else if (matchType === 'talk') {
-                            if(talkList) talkList.appendChild(li);
-                            talkCount++;
+                            favList.appendChild(li); favCount++; 
+                        } else if (b === 'JA' && s === 'JA') { 
+                            hotList.appendChild(li); hotCount++; 
+                        } else { 
+                            talkList.appendChild(li); talkCount++; 
                         }
                     }
                 }
             });
 
-            // Leere Status-Texte anzeigen, falls Listen leer sind
-            if(favList && favCount === 0) favList.innerHTML = `<li class="empty-state">Noch keine Favoriten. Tippe bei einem Match auf den Stern ☆!</li>`;
-            if(hotList && hotCount === 0) hotList.innerHTML = `<li class="empty-state">Keine weiteren absoluten Matches gefunden.</li>`;
-            if(talkList && talkCount === 0) talkList.innerHTML = `<li class="empty-state">Kein weiteres Kopfkino aufgedeckt.</li>`;
+            document.getElementById('archive-count').innerText = archCount;
+            if(favList && favCount === 0) favList.innerHTML = `<li class="empty-state">Keine Favoriten.</li>`;
+            if(hotList && hotCount === 0) hotList.innerHTML = `<li class="empty-state">Keine Matches.</li>`;
+            if(talkList && talkCount === 0) talkList.innerHTML = `<li class="empty-state">Kein Redebedarf.</li>`;
+            if(archList && archCount === 0) archList.innerHTML = `<li class="empty-state">Archiv ist leer.</li>`;
         }
 
         function toggleLevel(lvl) {
