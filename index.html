@@ -3,16 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-	<!-- ==========================================
-         PWA & VOLLBILD (APP-MODUS)
-         ========================================== -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Puls">
     <meta name="theme-color" content="#09090b">
     <meta name="mobile-web-app-capable" content="yes">
     
-    <!-- Mini-Manifest für Android (erzwingt den App-Modus) -->
     <link rel="manifest" href="manifest.json">
     <title>Puls</title>
     <style>
@@ -263,7 +259,6 @@
                 🔒 **Absolute Diskretion:** Hier ploppen nur Dinge auf, wenn *beide* Interesse signalisiert haben. Ein „No-Go!“ bleibt für den anderen für immer unsichtbar.
             </p>
             
-            <!-- NEU: Favoriten Bereich -->
             <div class="result-title" style="color: var(--accent-spicy); font-size: 0.95rem;">⭐ Meine Favoriten</div>
             <ul class="item-list" id="list-matches-fav" style="margin-bottom: 24px;"></ul>
 
@@ -272,7 +267,6 @@
 
             <div class="result-title">💬 Reizvolles Kopfkino (Redebedarf)</div>
             <ul class="item-list match-talk" id="list-matches-talk"></ul>
-			<!-- NEU: Archiv-Bereich -->
             <div class="dashboard-box" style="margin-top: 32px; border: 2px dashed #27272a; background: transparent;">
                 <div onclick="document.getElementById('archive-content').style.display = document.getElementById('archive-content').style.display === 'none' ? 'block' : 'none'" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
                     <span style="font-weight:800; color:var(--text-light); text-transform:uppercase; font-size:0.8rem;">📦 Archiviert <span id="archive-count">0</span></span>
@@ -333,7 +327,6 @@
                 <div id="round-display" style="text-align: center; font-size: 0.85rem; font-weight: 800; color: var(--accent-spicy); margin-top: 12px; display: none;">Runde 1 von 3</div>
             </div>
         </section>
-        </section>
 
 <section id="section-sync" class="view-section">
             
@@ -370,6 +363,20 @@
                 <p style="font-size:0.8rem; color:var(--text-light); line-height: 1.4;">
                     Eure Geräte sind live über Firebase verbunden. Swipes, Matches und Vibes werden sofort in Millisekunden synchronisiert.
                 </p>
+            </div>
+            
+            <div onclick="toggleNinjaMode()" style="text-align: center; margin-top: 30px; font-size: 0.6rem; color: var(--text-light); opacity: 0.4; cursor: pointer;">
+                app version 1.0.4
+            </div>
+
+            <div id="ninja-mode-panel" style="display: none; background: var(--card-bg); padding: 15px; border-radius: 15px; margin-top: 10px; border: 1px solid rgba(0,0,0,0.1);">
+                <p style="color: var(--highlight-color); font-size: 0.8rem; font-weight: 800; margin-bottom: 10px; text-transform: uppercase;">🥷 System Override (Einmal-Aufgabe)</p>
+                
+                <input type="text" id="joker-benni-input" placeholder="Zwingende nächste Aufgabe für Benni..." style="width: 100%; padding: 8px; border-radius: 8px; margin-bottom: 8px; font-size: 0.8rem; border:1px solid #e2e8f0; outline:none; background:#09090b; color:white;">
+                <button onclick="setJoker('benni')" style="width: 100%; background: #1e3a8a; color: white; border: none; padding: 8px; border-radius: 8px; font-weight: 800; margin-bottom: 15px; cursor: pointer;">Für Benni scharfstellen</button>
+                
+                <input type="text" id="joker-sarah-input" placeholder="Zwingende nächste Aufgabe für Sarah..." style="width: 100%; padding: 8px; border-radius: 8px; margin-bottom: 8px; font-size: 0.8rem; border:1px solid #e2e8f0; outline:none; background:#09090b; color:white;">
+                <button onclick="setJoker('sarah')" style="width: 100%; background: #581c87; color: white; border: none; padding: 8px; border-radius: 8px; font-weight: 800; cursor: pointer;">Für Sarah scharfstellen</button>
             </div>
             
         </section>
@@ -413,8 +420,8 @@
             { text: "Du kannst es versuchen 😏", color: "#60a5fa" },      // 1: Blau / Offen
             { text: "Ich will, dass du es mir machst 🫠", color: "#c084fc" }, // 2: Lila / Passiv empfangend
             { text: "Ich will es dir machen 😈", color: "#f472b6" },      // 3: Pink / Aktiv gebend
-            { text: "Fick mich 🥵", color: "#e11d48" },                   // 4: Rot / Sehr fordernd
-            { text: "Ich will es hart 💥", color: "#9f1239" }             // 5: Dunkelrot / Extrem
+            { text: "Fick mich 🥵", color: "#e11d48" },                    // 4: Rot / Sehr fordernd
+            { text: "Ich will es hart 💥", color: "#9f1239" }              // 5: Dunkelrot / Extrem
         ];
 
         // Aktualisiert die Anzeige, wenn der Regler geschoben wird
@@ -517,7 +524,9 @@
             answers: {},
             shuffledOrder: [],
             customQuestions: [],
-            favorites: { benni: {}, sarah: {} }
+            favorites: { benni: {}, sarah: {} },
+            jokerBenni: "", 
+            jokerSarah: ""  
         };
         // ==========================================
         // INITIALISIERUNG & FIREBASE LISTENER
@@ -1252,6 +1261,33 @@
             t.innerText = text;
             t.classList.add('show');
             setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        function saveState() {
+            database.ref('puls_live_data').update({
+                jokerBenni: appState.jokerBenni,
+                jokerSarah: appState.jokerSarah
+            });
+        }
+
+        function toggleNinjaMode() {
+            const panel = document.getElementById('ninja-mode-panel');
+            if(panel) panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function setJoker(target) {
+            const inputId = target === 'benni' ? 'joker-benni-input' : 'joker-sarah-input';
+            const val = document.getElementById(inputId).value.trim();
+            if(!val) return;
+            
+            if(target === 'benni') appState.jokerBenni = val;
+            else appState.jokerSarah = val;
+            
+            saveState(); 
+            
+            document.getElementById(inputId).value = '';
+            showToast(`Geheime Aufgabe für ${target} scharfgestellt! 🥷`);
+            toggleNinjaMode(); 
         }
 
         window.onload = () => {
