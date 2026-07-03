@@ -1067,14 +1067,63 @@
             }
         }
 
-        // Live Spiel - Strafe greift auf Level 5-7
-        // ==========================================
-        // LIVE SPIEL LOGIK (Mit Roulette-Effekt)
+// ==========================================
+        // LIVE SPIEL LOGIK (Mit Roulette-Effekt & NINJA-MODUS)
         // ==========================================
         function drawLiveTask(target) {
             clearInterval(timerInterval);
             document.getElementById('timer-display').style.display = 'none';
             document.getElementById('btn-skip-task').style.display = 'none';
+            const textBox = document.getElementById('live-task-text');
+            const badge = document.getElementById('live-level-badge');
+            const buttons = document.querySelectorAll('#section-live .btn-block');
+
+            // ==========================================
+            // 1. NINJA FALLE ZUSCHNAPPEN LASSEN!
+            // ==========================================
+            if (target === 'benni' && appState.jokerBenni && appState.jokerBenni !== "") {
+                badge.style.display = 'inline-block';
+                badge.innerText = "⚠️ SYSTEM OVERRIDE";
+                badge.style.background = "var(--highlight-color)";
+                badge.style.color = "#09090b";
+                
+                textBox.innerHTML = `<span style="color:var(--highlight-color); font-weight:800; font-size: 0.8rem; text-transform:uppercase;">Geheime Sondermission:</span><br><br>${appState.jokerBenni}`;
+                textBox.style.opacity = "1";
+                textBox.style.filter = "none";
+                
+                if(window.navigator.vibrate) window.navigator.vibrate([200, 100, 200]);
+                document.getElementById('btn-skip-task').style.display = 'inline-block';
+                
+                // Joker sofort löschen, damit er nur 1x kommt!
+                appState.jokerBenni = "";
+                database.ref('puls_live_data').update({ jokerBenni: "" });
+                return; // BRICHT HIER AB - KEIN NORMALES ROULETTE!
+            }
+
+            if (target === 'sarah' && appState.jokerSarah && appState.jokerSarah !== "") {
+                badge.style.display = 'inline-block';
+                badge.innerText = "⚠️ SYSTEM OVERRIDE";
+                badge.style.background = "var(--highlight-color)";
+                badge.style.color = "#09090b";
+                
+                textBox.innerHTML = `<span style="color:var(--highlight-color); font-weight:800; font-size: 0.8rem; text-transform:uppercase;">Geheime Sondermission:</span><br><br>${appState.jokerSarah}`;
+                textBox.style.opacity = "1";
+                textBox.style.filter = "none";
+                
+                if(window.navigator.vibrate) window.navigator.vibrate([200, 100, 200]);
+                document.getElementById('btn-skip-task').style.display = 'inline-block';
+                
+                // Joker sofort löschen
+                appState.jokerSarah = "";
+                database.ref('puls_live_data').update({ jokerSarah: "" });
+                return; // BRICHT HIER AB!
+            }
+
+            // ==========================================
+            // 2. NORMALER ROULETTE-ABLAUF (Wenn kein Joker da ist)
+            // ==========================================
+            badge.style.background = "#2e1018"; // Normales Badge Design zurücksetzen
+            badge.style.color = "var(--accent-spicy)";
 
             let pool = [];
             let prefix = "";
@@ -1091,45 +1140,35 @@
             }
 
             if(pool.length === 0) {
-                document.getElementById('live-task-text').innerText = "Keine Aufgaben für diese Auswahl verfügbar.";
+                textBox.innerText = "Keine Aufgaben für diese Auswahl verfügbar.";
                 return;
             }
 
-            const textBox = document.getElementById('live-task-text');
-            const badge = document.getElementById('live-level-badge');
             badge.style.display = 'inline-block';
             badge.innerText = "🎲 ZIEHE...";
 
-            // Buttons während des Drehens deaktivieren, damit man nicht spammt
-            const buttons = document.querySelectorAll('#section-live .btn-block');
             buttons.forEach(b => b.disabled = true);
 
             let spins = 0;
-            const maxSpins = 12; // Anzahl der Text-Wechsel
+            const maxSpins = 12; 
             
-            // Roulette-Effekt starten
             const spinInterval = setInterval(() => {
                 const randomDummy = pool[Math.floor(Math.random() * pool.length)];
-                // Text leicht transparent und verschwommen machen für den Motion-Blur Effekt
                 textBox.innerHTML = `<span style="opacity: 0.6; filter: blur(0.5px);">${prefix}${randomDummy.text}</span>`;
                 
-                // Leichtes haptisches Ticken bei jedem Wechsel
                 if(window.navigator.vibrate) window.navigator.vibrate(15);
                 
                 spins++;
 
-                // Wenn genug gedreht wurde -> Stopp!
                 if(spins >= maxSpins) {
                     clearInterval(spinInterval);
                     
-                    // Finale Aufgabe festlegen
                     const finalTask = pool[Math.floor(Math.random() * pool.length)];
                     badge.innerText = `LEVEL ${finalTask.lvl}`;
                     textBox.innerHTML = prefix + finalTask.text;
                     textBox.style.opacity = "1";
                     textBox.style.filter = "none";
                     
-                    // Erfolgs-Vibration (Jackpot!)
                     if(window.navigator.vibrate) window.navigator.vibrate([100, 50, 100]);
                     
                     document.getElementById('btn-skip-task').style.display = 'inline-block';
@@ -1139,7 +1178,7 @@
                         startLiveTimer(finalTask.timer);
                     }
                 }
-            }, 120); // Geschwindigkeit des Wechsels (120 Millisekunden)
+            }, 120); 
         }
 
         // ==========================================
