@@ -252,6 +252,16 @@
                     <button onclick="injectCustomQuestion()" class="btn-block" style="background:#27272a; border:1px solid var(--accent-spicy); color:var(--accent-spicy); margin-top: 4px;">Heimlich einschleusen 🎲</button>
                 </div>
             </div>
+
+            <div id="benni-secret-trigger" onclick="toggleSecretRejects()" style="text-align: center; margin-top: 30px; font-size: 0.6rem; color: var(--text-light); opacity: 0.2; cursor: pointer; display: none;">
+                sys.log
+            </div>
+            
+            <div id="secret-reject-panel" style="display: none; background: #18181b; padding: 15px; border-radius: 15px; margin-top: 10px; border: 1px solid var(--danger-color);">
+                <p style="color: var(--danger-color); font-size: 0.8rem; font-weight: 800; margin-bottom: 10px; text-transform: uppercase;">🚫 Sarahs No-Gos</p>
+                <p style="font-size: 0.7rem; color: var(--text-light); margin-bottom: 10px;">Das sind die Karten, die Sarah mit "No-Go" weggewischt hat:</p>
+                <ul class="item-list" id="list-secret-rejects" style="max-height: 250px; overflow-y: auto;"></ul>
+            </div>
         </section>
 
         <section id="section-matches" class="view-section">
@@ -463,7 +473,7 @@
         function updatePartnerVibeDisplay() {
             // Finde heraus, wer der Partner ist
             const partnerRole = currentPartner === 'benni' ? 'sarah' : 'benni';
-            const partnerName = currentPartner === 'benni' ? nameSarah : nameBenni;
+            const partnerName = currentPartner === 'benni' ? "Sarah" : "Benni";
             
             const banner = document.getElementById('partner-vibe-banner');
             const nameDisplay = document.getElementById('partner-name-display');
@@ -656,16 +666,24 @@
             benniBtn.style.background = 'none';
             sarahBtn.style.background = 'none';
 
+            const secretTrigger = document.getElementById('benni-secret-trigger');
+            const secretPanel = document.getElementById('secret-reject-panel');
+
             if(currentPartner === 'benni') {
-                badge.innerText = `${nameBenni} (♂️)`;
+                badge.innerText = "Benni (♂️)";
                 badge.className = "role-badge role-active-benni";
                 benniBtn.style.background = '#1e3a8a';
                 document.documentElement.style.setProperty('--accent-spicy', '#e11d48');
+                
+                if(secretTrigger) secretTrigger.style.display = 'block';
             } else {
-                badge.innerText = `${nameSarah} (♀️)`;
+                badge.innerText = "Sarah (♀️)";
                 badge.className = "role-badge role-active-sarah";
                 sarahBtn.style.background = '#581c87';
                 document.documentElement.style.setProperty('--accent-spicy', '#a855f7');
+                
+                if(secretTrigger) secretTrigger.style.display = 'none';
+                if(secretPanel) secretPanel.style.display = 'none';
             }
         }
 
@@ -1067,7 +1085,8 @@
             }
         }
 
-// ==========================================
+        // Live Spiel - Strafe greift auf Level 5-7
+        // ==========================================
         // LIVE SPIEL LOGIK (Mit Roulette-Effekt & NINJA-MODUS)
         // ==========================================
         function drawLiveTask(target) {
@@ -1078,9 +1097,6 @@
             const badge = document.getElementById('live-level-badge');
             const buttons = document.querySelectorAll('#section-live .btn-block');
 
-            // ==========================================
-            // 1. NINJA FALLE ZUSCHNAPPEN LASSEN!
-            // ==========================================
             if (target === 'benni' && appState.jokerBenni && appState.jokerBenni !== "") {
                 badge.style.display = 'inline-block';
                 badge.innerText = "⚠️ SYSTEM OVERRIDE";
@@ -1094,10 +1110,9 @@
                 if(window.navigator.vibrate) window.navigator.vibrate([200, 100, 200]);
                 document.getElementById('btn-skip-task').style.display = 'inline-block';
                 
-                // Joker sofort löschen, damit er nur 1x kommt!
                 appState.jokerBenni = "";
                 database.ref('puls_live_data').update({ jokerBenni: "" });
-                return; // BRICHT HIER AB - KEIN NORMALES ROULETTE!
+                return; 
             }
 
             if (target === 'sarah' && appState.jokerSarah && appState.jokerSarah !== "") {
@@ -1113,16 +1128,12 @@
                 if(window.navigator.vibrate) window.navigator.vibrate([200, 100, 200]);
                 document.getElementById('btn-skip-task').style.display = 'inline-block';
                 
-                // Joker sofort löschen
                 appState.jokerSarah = "";
                 database.ref('puls_live_data').update({ jokerSarah: "" });
-                return; // BRICHT HIER AB!
+                return; 
             }
 
-            // ==========================================
-            // 2. NORMALER ROULETTE-ABLAUF (Wenn kein Joker da ist)
-            // ==========================================
-            badge.style.background = "#2e1018"; // Normales Badge Design zurücksetzen
+            badge.style.background = "#2e1018"; 
             badge.style.color = "var(--accent-spicy)";
 
             let pool = [];
@@ -1327,6 +1338,47 @@
             document.getElementById(inputId).value = '';
             showToast(`Geheime Aufgabe für ${target} scharfgestellt! 🥷`);
             toggleNinjaMode(); 
+        }
+
+        // ==========================================
+        // GEHEIMES NO-GO LOG FÜR BENNI
+        // ==========================================
+        function toggleSecretRejects() {
+            const panel = document.getElementById('secret-reject-panel');
+            if(panel) {
+                if(panel.style.display === 'none') {
+                    panel.style.display = 'block';
+                    renderSecretRejects(); // Liste laden
+                } else {
+                    panel.style.display = 'none';
+                }
+            }
+        }
+
+        function renderSecretRejects() {
+            const ul = document.getElementById('list-secret-rejects');
+            if(!ul) return;
+            ul.innerHTML = '';
+            
+            let count = 0;
+            const pool = getCombinedQuestionPool();
+            
+            pool.forEach(q => {
+                const ans = appState.answers[q.id];
+                // Wir filtern exakt nach den Karten, bei denen Sarah auf "NEIN" gedrückt hat
+                if(ans && ans.sarah === 'NEIN') {
+                    const li = document.createElement('li');
+                    // Wir zeigen dir den Text, den Sarah gelesen hat (damit du den Kontext kennst)
+                    li.innerHTML = `<span style="font-size: 0.85rem; color: var(--text-dark);">${q.textSarah}</span>`;
+                    li.style.borderLeftColor = "var(--danger-color)";
+                    ul.appendChild(li);
+                    count++;
+                }
+            });
+            
+            if(count === 0) {
+                ul.innerHTML = '<li class="empty-state">Noch keine No-Gos von Sarah erfasst.</li>';
+            }
         }
 
         window.onload = () => {
