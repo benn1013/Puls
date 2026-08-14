@@ -160,7 +160,19 @@
         .match-hot li { border-left-color: var(--success-color); }
         .match-talk li { border-left-color: var(--warning-color); }
         .empty-state { color: var(--text-light); font-style: italic; font-size: 0.85rem; border-left: none !important; padding: 10px 4px; background: transparent !important; }
-
+/* Versteckte Antworten bei Redebedarf ("Drauf bleiben") */
+        .vote-reveal {
+            display: none;
+            font-size: 0.8rem;
+            margin-top: 12px;
+            padding: 10px;
+            background: #09090b;
+            border-radius: 8px;
+            border: 1px solid #27272a;
+        }
+        .item-list li:active .vote-reveal {
+            display: block; /* Zeigt das Feld an, solange der Finger drauf ist */
+        }
         /* Timer Widget */
         #timer-display { font-size: 2.5rem; font-weight: 800; color: var(--accent-spicy); margin: 14px 0; text-align: center; font-family: monospace; display: none; }
 
@@ -1010,7 +1022,7 @@
       // ==========================================
         // MATCHES & FAVORITEN RENDER LOGIK (MIT ARCHIV)
         // ==========================================
-        function renderMatchesLists() {
+function renderMatchesLists() {
             const favList = document.getElementById('list-matches-fav');
             const hotList = document.getElementById('list-matches-hot');
             const talkList = document.getElementById('list-matches-talk');
@@ -1035,7 +1047,6 @@
                     // ARCHIV-LOGIK: Wenn archiviert, direkt ins Archiv-UL und Funktion beenden
                   if (ans.archived) {
                         const li = document.createElement('li');
-                        // Hier ist der neue, angepasste Code mit dem größeren Button:
                         li.innerHTML = `<span style="text-decoration:line-through; opacity:0.6;">${cleanText}</span> 
                                         <button onclick="toggleArchiveStatus('${q.id}')" style="background:none; border:none; cursor:pointer; float:right; font-size: 1.5rem; margin-top: -5px;">🔄</button>`;
                         if(archList) archList.appendChild(li);
@@ -1060,6 +1071,21 @@
                         } else if (b === 'JA' && s === 'JA') { 
                             hotList.appendChild(li); hotCount++; 
                         } else { 
+                            // REDEBEDARF - HIER IST DIE "DRAUF BLEIBEN" FUNKTION
+                            li.setAttribute("ontouchstart", ""); // Wichtig für Handys, damit der Druck-Effekt funktioniert
+                            
+                            // Icons für die Antworten vergeben
+                            let iconB = b === 'JA' ? '🔥 JA' : (b === 'VIELLEICHT' ? '💬 VIELLEICHT' : '❌ NO-GO');
+                            let iconS = s === 'JA' ? '🔥 JA' : (s === 'VIELLEICHT' ? '💬 VIELLEICHT' : '❌ NO-GO');
+                            
+                            // Unsichtbares Feld anhängen, das beim Drücken sichtbar wird
+                            li.innerHTML += `
+                                <div class="vote-reveal">
+                                    <strong style="color:#60a5fa;">Benni:</strong> ${iconB} <br>
+                                    <strong style="color:#c084fc; margin-top:6px; display:inline-block;">Sarah:</strong> ${iconS}
+                                </div>
+                            `;
+                            
                             talkList.appendChild(li); talkCount++; 
                         }
                     }
@@ -1072,7 +1098,6 @@
             if(talkList && talkCount === 0) talkList.innerHTML = `<li class="empty-state">Kein Redebedarf.</li>`;
             if(archList && archCount === 0) archList.innerHTML = `<li class="empty-state">Archiv ist leer.</li>`;
         }
-
         function toggleLevel(lvl) {
             const btn = document.querySelector(`[data-lvl="${lvl}"]`);
             if(activeLevels.includes(lvl)) {
